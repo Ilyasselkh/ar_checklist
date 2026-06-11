@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ar_checklist_user,ar.checklist user,model_ar_checklist,base.group_user,1,1,1,0
+access_ar_checklist_line_user,ar.checklist.line user,model_ar_checklist_line,base.group_user,1,1,1,1
+access_ar_checklist_operator_line_user,ar.checklist.operator.line user,model_ar_checklist_operator_line,base.group_user,1,1,1,1
+access_ar_checklist_equipment_line_user,ar.checklist.equipment.line user,model_ar_checklist_equipment_line,base.group_user,1,1,1,1
+access_ar_checklist_documentation_user,ar.checklist.documentation user,model_ar_checklist_documentation,base.group_user,1,1,1,0
+access_ar_checklist_equipment_read,ar.checklist.equipment read,model_ar_checklist_equipment,base.group_user,1,0,0,0
+access_ar_checklist_equipment_param,ar.checklist.equipment param,model_ar_checklist_equipment,ar_checklist.group_ar_checklist_param,1,1,1,1
+access_ar_checklist_client_read,ar.checklist.client read,model_ar_checklist_client,base.group_user,1,0,0,0
+access_ar_checklist_client_param,ar.checklist.client param,model_ar_checklist_client,ar_checklist.group_ar_checklist_param,1,1,1,1
+access_ar_checklist_client_line_read,ar.checklist.client.line read,model_ar_checklist_client_line,base.group_user,1,0,0,0
+access_ar_checklist_client_line_param,ar.checklist.client.line param,model_ar_checklist_client_line,ar_checklist.group_ar_checklist_param,1,1,1,1

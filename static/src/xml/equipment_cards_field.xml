@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ar_checklist.EquipmentCardsField">
+        <div t-att-class="'ar_equipment_cards_widget' + (props.readonly ? ' is_readonly' : '')">
+            <t t-foreach="records" t-as="line" t-key="line.id">
+                <div class="ar_equipment_card">
+                    <div class="ar_equipment_name" t-esc="equipmentName(line)"/>
+                    <div class="ar_equipment_choices">
+                        <button type="button"
+                                t-att-class="'ar_equipment_choice ar_equipment_choice_ok' + (isActive(line, 'ok') ? ' active' : '')"
+                                t-on-click.stop.prevent="() => setState(line, 'ok')">
+                            OK
+                        </button>
+                        <button type="button"
+                                t-att-class="'ar_equipment_choice ar_equipment_choice_nok' + (isActive(line, 'nok') ? ' active' : '')"
+                                t-on-click.stop.prevent="() => setState(line, 'nok')">
+                            NOK
+                        </button>
+                        <button type="button"
+                                t-att-class="'ar_equipment_choice ar_equipment_choice_abs' + (isActive(line, 'abs') ? ' active' : '')"
+                                t-on-click.stop.prevent="() => setState(line, 'abs')">
+                            ABS
+                        </button>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

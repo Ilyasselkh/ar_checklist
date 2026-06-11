@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ar_checklist_list" model="ir.ui.view">
+        <field name="name">ar.checklist.list</field>
+        <field name="model">ar.checklist</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name_display" string="Référence" width="160px"/>
+                <field name="date_display" string="Date" width="160px"/>
+                <field name="workflow_state" string="État" width="160px"/>
+                <field name="equipe" string="Équipe" width="160px"/>
+                <field name="heure" widget="float_time" width="160px"/>
+                <field name="chef_id" string="Chef d'équipe" width="160px"/>
+                <field name="next_chef_id" string="Chef d'équipe suivant" width="160px"/>
+                <field name="nb_absents" string="Nombre d'absence" width="160px"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ar_checklist_kanban" model="ir.ui.view">
+        <field name="name">ar.checklist.kanban</field>
+        <field name="model">ar.checklist</field>
+        <field name="arch" type="xml">
+            <kanban class="ar_checklist_kanban" default_group_by="equipe" quick_create="false">
+                <field name="name_display"/>
+                <field name="date_display"/>
+                <field name="workflow_state"/>
+                <field name="equipe"/>
+                <field name="heure"/>
+                <field name="chef_id"/>
+                <field name="next_chef_id"/>
+                <field name="nb_absents"/>
+                <field name="total_prep_manuf"/>
+                <field name="total_prep_trad"/>
+                <field name="total_exp_manuf"/>
+                <field name="total_exp_trad"/>
+                <field name="total_att_exp_manuf"/>
+                <field name="total_att_exp_trad"/>
+                <field name="total_alim_tri"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click oe_kanban_card ar_checklist_card">
+                            <div class="ar_card_topline"/>
+                            <div class="ar_card_header">
+                                <div>
+                                    <span class="ar_card_ref"><field name="name_display"/></span>
+                                    <strong class="ar_card_title">Check-list de passation</strong>
+                                </div>
+                                <span class="ar_card_shift"><field name="equipe"/></span>
+                            </div>
+                            <div class="ar_card_person">
+                                <span class="ar_card_avatar"><i class="fa fa-users"/></span>
+                                <div>
+                                    <span class="ar_card_label">Chef d'équipe</span>
+                                    <strong><field name="chef_id"/></strong>
+                                </div>
+                            </div>
+                            <div class="ar_card_meta">
+                                <span><i class="fa fa-calendar-o"/> <field name="date_display"/></span>
+                                <span><i class="fa fa-clock-o"/> <field name="heure" widget="float_time"/></span>
+                                <span><i class="fa fa-user-times"/> Absences : <field name="nb_absents"/></span>
+                            </div>
+                            <div class="ar_card_totals">
+                                <div>
+                                    <span class="ar_card_label">Préparation</span>
+                                    <strong><field name="total_prep_manuf"/> / <field name="total_prep_trad"/></strong>
+                                </div>
+                                <div>
+                                    <span class="ar_card_label">Expédition</span>
+                                    <strong><field name="total_exp_manuf"/> / <field name="total_exp_trad"/></strong>
+                                </div>
+                                <div>
+                                    <span class="ar_card_label">Attente</span>
+                                    <strong><field name="total_att_exp_manuf"/> / <field name="total_att_exp_trad"/></strong>
+                                </div>
+                                <div>
+                                    <span class="ar_card_label">Alim. Tri</span>
+                                    <strong><field name="total_alim_tri"/></strong>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_ar_checklist_form" model="ir.ui.view">
+        <field name="name">ar.checklist.form</field>
+        <field name="model">ar.checklist</field>
+        <field name="arch" type="xml">
+            <form string="Check-list de passation de changement d'équipe" class="ar_checklist_form">
+                <header>
+                    <button name="action_signature_1" string="Signature" type="object" class="btn-primary ar_checklist_btn_signature" invisible="not active or workflow_state != 'signature_1'"/>
+                    <button name="action_signature_2" string="Signature" type="object" class="btn-primary ar_checklist_btn_signature" invisible="not active or workflow_state != 'signature_2' or not is_next_chef or signature_2_user_id"/>
+                    <button name="action_save_checklist" string="Enregistrer" type="object" class="btn-primary ar_checklist_btn_save" invisible="not active or workflow_state != 'signature_1'"/>
+                    <field name="workflow_state" widget="statusbar" statusbar_visible="signature_1,signature_2"/>
+                </header>
+                <sheet>
+                    <div class="ar_checklist_hero">
+                        <div class="ar_checklist_hero_badge">Check-list de passation de changement d'équipe</div>
+                        <h1>
+                            <field name="name_display" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <div class="ar_checklist_top">
+                        <div class="ar_checklist_identity">
+                            <group col="2">
+                                <field name="active" invisible="1"/>
+                                <field name="workflow_state" invisible="1"/>
+                                <field name="is_next_chef" invisible="1"/>
+                                <field name="signature_2_user_id" invisible="1"/>
+                                <field name="date" invisible="1"/>
+                                <field name="date_display" readonly="1"/>
+                                <field name="heure" widget="float_time" readonly="1"/>
+                                <field name="chef_id" readonly="1"/>
+                                <field name="nb_absents" readonly="1"/>
+                                <field name="equipe" readonly="not active or workflow_state != 'signature_1'"/>
+                                <field name="next_chef_id" readonly="not active or workflow_state != 'signature_1'" options="{'no_create': True, 'no_create_edit': True}"/>
+                            </group>
+                        </div>
+
+                        <div class="ar_checklist_presence_panel">
+                            <div class="ar_checklist_panel_title">Opérateurs affectés</div>
+                            <field name="operator_presence_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}">
+                                <list editable="bottom" create="0" delete="0" open_form_view="false">
+                                    <field name="operator_name" string="Opérateur" readonly="1" force_save="1"/>
+                                    <field name="present" string="Présence"/>
+                                </list>
+                            </field>
+                        </div>
+                    </div>
+
+                    <div class="ar_checklist_sections">
+                        <div class="ar_checklist_section">
+                            <div class="ar_checklist_section_title">Préparation (Nb de Palettes)</div>
+                            <div class="ar_checklist_section_grid">
+                                <div class="ar_checklist_subsection">
+                                    <div class="ar_checklist_subsection_title">Manufacturing</div>
+                                <field name="prep_manuf_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'prep_manuf'}">
+                                    <list editable="bottom">
+                                        <field name="section" column_invisible="1"/>
+                                        <field name="client_line_id" string="Client"/>
+                                        <field name="quantity" string="Nb palettes"/>
+                                    </list>
+                                </field>
+                                    <div class="ar_checklist_total_line">
+                                        <span>TOTAL PREP MANUF</span>
+                                        <field name="total_prep_manuf" nolabel="1" readonly="1"/>
+                                    </div>
+                                </div>
+                                <div class="ar_checklist_subsection">
+                                    <div class="ar_checklist_subsection_title">Trading</div>
+                                <field name="prep_trad_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'prep_trad'}">
+                                    <list editable="bottom">
+                                        <field name="section" column_invisible="1"/>
+                                        <field name="client_line_id" string="Client"/>
+                                        <field name="quantity" string="Nb palettes"/>
+                                    </list>
+                                </field>
+                                    <div class="ar_checklist_total_line">
+                                        <span>TOTAL PREP TRAD</span>
+                                        <field name="total_prep_trad" nolabel="1" readonly="1"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ar_checklist_section">
+                            <div class="ar_checklist_section_title">Expédition (Nb de Palettes)</div>
+                            <div class="ar_checklist_section_grid">
+                                <div class="ar_checklist_subsection">
+                                    <div class="ar_checklist_subsection_title">Manufacturing</div>
+                                <field name="exp_manuf_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'exp_manuf'}">
+                                    <list editable="bottom">
+                                        <field name="section" column_invisible="1"/>
+                                        <field name="client_line_id" string="Client"/>
+                                        <field name="quantity" string="Nb palettes"/>
+                                    </list>
+                                </field>
+                                    <div class="ar_checklist_total_line">
+                                        <span>TOTAL EXP MANUF</span>
+                                        <field name="total_exp_manuf" nolabel="1" readonly="1"/>
+                                    </div>
+                                </div>
+                                <div class="ar_checklist_subsection">
+                                    <div class="ar_checklist_subsection_title">Trading</div>
+                                <field name="exp_trad_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'exp_trad'}">
+                                    <list editable="bottom">
+                                        <field name="section" column_invisible="1"/>
+                                        <field name="client_line_id" string="Client"/>
+                                        <field name="quantity" string="Nb palettes"/>
+                                    </list>
+                                </field>
+                                    <div class="ar_checklist_total_line">
+                                        <span>TOTAL EXP TRAD</span>
+                                        <field name="total_exp_trad" nolabel="1" readonly="1"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ar_checklist_extra_area">
+                        <div class="ar_checklist_extra_sections">
+                            <div class="ar_checklist_subsection">
+                                <div class="ar_checklist_subsection_title">Attente Expédition Manuf (Nb de palettes)</div>
+                                <field name="att_exp_manuf_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'att_exp_manuf'}">
+                                    <list editable="bottom">
+                                        <field name="section" column_invisible="1"/>
+                                        <field name="client_line_id" string="Client"/>
+                                        <field name="quantity" string="Nb palettes"/>
+                                    </list>
+                                </field>
+                                <div class="ar_checklist_total_line">
+                                    <span>TOTAL Att Exp Manuf</span>
+                                    <field name="total_att_exp_manuf" nolabel="1" readonly="1"/>
+                                </div>
+                            </div>
+
+                            <div class="ar_checklist_subsection">
+                                <div class="ar_checklist_subsection_title">Attente Expédition Trad (Nb de palettes)</div>
+                                <field name="att_exp_trad_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'att_exp_trad'}">
+                                    <list editable="bottom">
+                                        <field name="section" column_invisible="1"/>
+                                        <field name="client_line_id" string="Client"/>
+                                        <field name="quantity" string="Nb palettes"/>
+                                    </list>
+                                </field>
+                                <div class="ar_checklist_total_line">
+                                    <span>TOTAL Att Exp Trad</span>
+                                    <field name="total_att_exp_trad" nolabel="1" readonly="1"/>
+                                </div>
+                            </div>
+
+                            <div class="ar_checklist_subsection">
+                                <div class="ar_checklist_subsection_title">Alimentation Tri (Nb de palettes)</div>
+                                <field name="alim_tri_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'alim_tri'}">
+                                    <list editable="bottom">
+                                        <field name="section" column_invisible="1"/>
+                                        <field name="client_line_id" string="Client"/>
+                                        <field name="quantity" string="Nb palettes"/>
+                                    </list>
+                                </field>
+                                <div class="ar_checklist_total_line">
+                                    <span>TOTAL Alim Tri</span>
+                                    <field name="total_alim_tri" nolabel="1" readonly="1"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ar_checklist_subsection ar_checklist_comment_box">
+                            <div class="ar_checklist_subsection_title">Commentaire général</div>
+                            <field name="observations" nolabel="1" readonly="not active or workflow_state != 'signature_1'" placeholder="Commentaire général..."/>
+                        </div>
+                    </div>
+
+                    <div class="ar_checklist_small_metrics">
+                        <div class="ar_checklist_small_box">
+                            <div class="ar_checklist_small_title">Nb Palettes Sol</div>
+                            <field name="nb_palettes_sol" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
+                        </div>
+                        <div class="ar_checklist_small_box">
+                            <div class="ar_checklist_small_title">Nb Palettes RCI</div>
+                            <field name="nb_palettes_rci" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
+                        </div>
+                        <div class="ar_checklist_small_box">
+                            <div class="ar_checklist_small_title">Nb Emp Vides FG</div>
+                            <field name="nb_emp_vides_fg" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
+                        </div>
+                    </div>
+
+                    <div class="ar_checklist_equipment_area">
+                        <div class="ar_checklist_panel_title">Équipements</div>
+                        <field name="equipment_line_ids" widget="ar_equipment_cards" nolabel="1" readonly="not active or workflow_state != 'signature_1'">
+                            <list>
+                                <field name="equipment_id"/>
+                                <field name="state"/>
+                            </list>
+                        </field>
+                    </div>
+
+                    <chatter/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ar_checklist_search" model="ir.ui.view">
+        <field name="name">ar.checklist.search</field>
+        <field name="model">ar.checklist</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="equipe"/>
+                <field name="chef_id"/>
+                <field name="date"/>
+                <filter string="Archivées" name="archived" domain="[('active', '=', False)]" context="{'active_test': False}"/>
+                <group>
+                    <filter string="Équipe" name="group_equipe" context="{'group_by': 'equipe'}"/>
+                    <filter string="Chef d'équipe" name="group_chef" context="{'group_by': 'chef_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ar_checklist" model="ir.actions.act_window">
+        <field name="name">Check-list de passation de changement d'équipe</field>
+        <field name="res_model">ar.checklist</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_ar_checklist_search"/>
+    </record>
+
+    <record id="action_ar_checklist_archive" model="ir.actions.act_window">
+        <field name="name">Archive</field>
+        <field name="res_model">ar.checklist</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('active', '=', False)]</field>
+        <field name="context">{'active_test': False}</field>
+        <field name="search_view_id" ref="view_ar_checklist_search"/>
+    </record>
+</odoo>

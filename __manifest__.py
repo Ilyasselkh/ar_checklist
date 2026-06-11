@@ -1,0 +1,40 @@
+{
+    "name": "AR - Check-list",
+    "version": "1.0.0",
+    "summary": "Check-list de passation de changement d'équipe",
+    "description": """
+Module de gestion des check-lists de passation de changement d'équipe avec archives, documentation, clients importés par Excel
+et opérateurs affectés depuis le module RH.
+    """,
+    "author": "AR IT Department",
+    "category": "Operations",
+    "license": "LGPL-3",
+    "depends": [
+        "base",
+        "mail",
+        "hr",
+    ],
+    "external_dependencies": {
+        "python": ["openpyxl"],
+    },
+    "data": [
+        "data/sequence.xml",
+        "security/security.xml",
+        "security/ir.model.access.csv",
+        "reports/checklist_report.xml",
+        "views/checklist_views.xml",
+        "views/client_views.xml",
+        "views/equipment_views.xml",
+        "views/documentation_views.xml",
+        "views/menus.xml",
+    ],
+    "assets": {
+        "web.assets_backend": [
+            "ar_checklist/static/src/js/equipment_cards_field.js",
+            "ar_checklist/static/src/xml/equipment_cards_field.xml",
+            "ar_checklist/static/src/scss/ar_checklist.scss",
+        ],
+    },
+    "application": True,
+    "installable": True,
+}

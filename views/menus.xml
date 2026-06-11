@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_ar_checklist_root"
+              name="AR Check-list de passation de changement d'équipe"
+              action="action_ar_checklist"
+              sequence="12"
+              groups="base.group_user"/>
+
+    <menuitem id="menu_ar_checklist_checklist"
+              name="Check-list"
+              parent="menu_ar_checklist_root"
+              action="action_ar_checklist"
+              sequence="10"/>
+
+    <menuitem id="menu_ar_checklist_archive"
+              name="Archive"
+              parent="menu_ar_checklist_root"
+              action="action_ar_checklist_archive"
+              sequence="20"/>
+
+    <menuitem id="menu_ar_checklist_documentation"
+              name="Documentation"
+              parent="menu_ar_checklist_root"
+              action="action_ar_checklist_documentation"
+              sequence="30"/>
+
+    <menuitem id="menu_ar_checklist_parametrage"
+              name="Paramétrage"
+              parent="menu_ar_checklist_root"
+              sequence="40"
+              groups="ar_checklist.group_ar_checklist_param"/>
+
+    <menuitem id="menu_ar_checklist_clients"
+              name="Clients"
+              parent="menu_ar_checklist_parametrage"
+              action="action_ar_checklist_client"
+              sequence="10"
+              groups="ar_checklist.group_ar_checklist_param"/>
+
+    <menuitem id="menu_ar_checklist_equipement"
+              name="Équipement"
+              parent="menu_ar_checklist_parametrage"
+              action="action_ar_checklist_equipment"
+              sequence="20"
+              groups="ar_checklist.group_ar_checklist_param"/>
+
+</odoo>
