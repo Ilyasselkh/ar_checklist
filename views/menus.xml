@@ -30,18 +30,11 @@
               sequence="40"
               groups="ar_checklist.group_ar_checklist_param"/>
 
-    <menuitem id="menu_ar_checklist_clients"
-              name="Clients"
-              parent="menu_ar_checklist_parametrage"
-              action="action_ar_checklist_client"
-              sequence="10"
-              groups="ar_checklist.group_ar_checklist_param"/>
-
     <menuitem id="menu_ar_checklist_equipement"
               name="Équipement"
               parent="menu_ar_checklist_parametrage"
               action="action_ar_checklist_equipment"
-              sequence="20"
+              sequence="10"
               groups="ar_checklist.group_ar_checklist_param"/>
 
 </odoo>

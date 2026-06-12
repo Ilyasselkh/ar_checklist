@@ -335,7 +335,11 @@ class ArChecklistLine(models.Model):
         ],
         required=True,
     )
-    client_line_id = fields.Many2one("ar.checklist.client.line", string="Client / Reference")
+    dossier_id = fields.Many2one(
+        "kadouane.kadouane",
+        string="N° dossier",
+        context={"ar_checklist_reference_display": True},
+    )
     quantity = fields.Float(string="Nb de palettes")
     def _check_signature_editable(self):
         if any(line.checklist_id.workflow_state == "signature_2" for line in self):

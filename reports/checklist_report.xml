@@ -289,10 +289,10 @@
                                                 <td style="width: 50%;" t-if="o.prep_manuf_line_ids">
                                                     <div class="ar_chk_subtitle">Manufacturing</div>
                                                     <table class="ar_chk_table">
-                                                        <thead><tr><th>Client</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
+                                                        <thead><tr><th>N° dossier</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
                                                         <tbody>
                                                             <tr t-foreach="o.prep_manuf_line_ids" t-as="line">
-                                                                <td><span t-field="line.client_line_id"/></td>
+                                                                <td><span t-esc="line.dossier_id.referenceID or ''"/></td>
                                                                 <td class="ar_chk_num"><span t-field="line.quantity"/></td>
                                                             </tr>
                                                         </tbody>
@@ -302,10 +302,10 @@
                                                 <td style="width: 50%;" t-if="o.prep_trad_line_ids">
                                                     <div class="ar_chk_subtitle">Trading</div>
                                                     <table class="ar_chk_table">
-                                                        <thead><tr><th>Client</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
+                                                        <thead><tr><th>N° dossier</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
                                                         <tbody>
                                                             <tr t-foreach="o.prep_trad_line_ids" t-as="line">
-                                                                <td><span t-field="line.client_line_id"/></td>
+                                                                <td><span t-esc="line.dossier_id.referenceID or ''"/></td>
                                                                 <td class="ar_chk_num"><span t-field="line.quantity"/></td>
                                                             </tr>
                                                         </tbody>
@@ -324,10 +324,10 @@
                                                 <td style="width: 50%;" t-if="o.exp_manuf_line_ids">
                                                     <div class="ar_chk_subtitle">Manufacturing</div>
                                                     <table class="ar_chk_table">
-                                                        <thead><tr><th>Client</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
+                                                        <thead><tr><th>N° dossier</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
                                                         <tbody>
                                                             <tr t-foreach="o.exp_manuf_line_ids" t-as="line">
-                                                                <td><span t-field="line.client_line_id"/></td>
+                                                                <td><span t-esc="line.dossier_id.referenceID or ''"/></td>
                                                                 <td class="ar_chk_num"><span t-field="line.quantity"/></td>
                                                             </tr>
                                                         </tbody>
@@ -337,10 +337,10 @@
                                                 <td style="width: 50%;" t-if="o.exp_trad_line_ids">
                                                     <div class="ar_chk_subtitle">Trading</div>
                                                     <table class="ar_chk_table">
-                                                        <thead><tr><th>Client</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
+                                                        <thead><tr><th>N° dossier</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
                                                         <tbody>
                                                             <tr t-foreach="o.exp_trad_line_ids" t-as="line">
-                                                                <td><span t-field="line.client_line_id"/></td>
+                                                                <td><span t-esc="line.dossier_id.referenceID or ''"/></td>
                                                                 <td class="ar_chk_num"><span t-field="line.quantity"/></td>
                                                             </tr>
                                                         </tbody>
@@ -361,10 +361,10 @@
                                     <div class="ar_chk_box">
                                         <h3>Attente Expédition Manuf</h3>
                                         <table class="ar_chk_table">
-                                            <thead><tr><th>Client</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
+                                            <thead><tr><th>N° dossier</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
                                             <tbody>
                                                 <tr t-foreach="o.att_exp_manuf_line_ids" t-as="line">
-                                                    <td><span t-field="line.client_line_id"/></td>
+                                                    <td><span t-esc="line.dossier_id.referenceID or ''"/></td>
                                                     <td class="ar_chk_num"><span t-field="line.quantity"/></td>
                                                 </tr>
                                             </tbody>
@@ -376,10 +376,10 @@
                                     <div class="ar_chk_box">
                                         <h3>Attente Expédition Trad</h3>
                                         <table class="ar_chk_table">
-                                            <thead><tr><th>Client</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
+                                            <thead><tr><th>N° dossier</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
                                             <tbody>
                                                 <tr t-foreach="o.att_exp_trad_line_ids" t-as="line">
-                                                    <td><span t-field="line.client_line_id"/></td>
+                                                    <td><span t-esc="line.dossier_id.referenceID or ''"/></td>
                                                     <td class="ar_chk_num"><span t-field="line.quantity"/></td>
                                                 </tr>
                                             </tbody>
@@ -391,10 +391,10 @@
                                     <div class="ar_chk_box">
                                         <h3>Alimentation Tri</h3>
                                         <table class="ar_chk_table">
-                                            <thead><tr><th>Client</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
+                                            <thead><tr><th>N° dossier</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
                                             <tbody>
                                                 <tr t-foreach="o.alim_tri_line_ids" t-as="line">
-                                                    <td><span t-field="line.client_line_id"/></td>
+                                                    <td><span t-esc="line.dossier_id.referenceID or ''"/></td>
                                                     <td class="ar_chk_num"><span t-field="line.quantity"/></td>
                                                 </tr>
                                             </tbody>

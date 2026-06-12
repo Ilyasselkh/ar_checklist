@@ -141,7 +141,7 @@
                                 <field name="prep_manuf_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'prep_manuf'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="client_line_id" string="Client"/>
+                                        <field name="dossier_id" string="N° dossier" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -155,7 +155,7 @@
                                 <field name="prep_trad_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'prep_trad'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="client_line_id" string="Client"/>
+                                        <field name="dossier_id" string="N° dossier" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -175,7 +175,7 @@
                                 <field name="exp_manuf_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'exp_manuf'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="client_line_id" string="Client"/>
+                                        <field name="dossier_id" string="N° dossier" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -189,7 +189,7 @@
                                 <field name="exp_trad_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'exp_trad'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="client_line_id" string="Client"/>
+                                        <field name="dossier_id" string="N° dossier" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -209,7 +209,7 @@
                                 <field name="att_exp_manuf_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'att_exp_manuf'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="client_line_id" string="Client"/>
+                                        <field name="dossier_id" string="N° dossier" domain="[('stateShip', '=', 'exp')]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -224,7 +224,7 @@
                                 <field name="att_exp_trad_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'att_exp_trad'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="client_line_id" string="Client"/>
+                                        <field name="dossier_id" string="N° dossier" domain="[('stateShip', '=', 'exp')]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -239,7 +239,7 @@
                                 <field name="alim_tri_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'alim_tri'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="client_line_id" string="Client"/>
+                                        <field name="dossier_id" string="N° dossier" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
