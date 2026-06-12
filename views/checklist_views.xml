@@ -277,6 +277,7 @@
                             <list>
                                 <field name="equipment_id"/>
                                 <field name="state"/>
+                                <field name="comment"/>
                             </list>
                         </field>
                     </div>

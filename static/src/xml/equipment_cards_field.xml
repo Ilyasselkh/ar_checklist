@@ -22,6 +22,12 @@
                             ABS
                         </button>
                     </div>
+                    <div class="ar_equipment_comment" t-if="needsComment(line)">
+                        <textarea t-att-readonly="props.readonly"
+                                  t-att-value="line.data.comment || ''"
+                                  t-on-input="(ev) => updateComment(line, ev.target.value)"
+                                  placeholder="Commentaire obligatoire..."/>
+                    </div>
                 </div>
             </t>
         </div>

@@ -211,48 +211,22 @@
                                 padding: 5px 6px;
                                 text-align: right;
                             }
-                            .ar_chk_status td {
+                            .ar_chk_equipment_status th:nth-child(1),
+                            .ar_chk_equipment_status td:nth-child(1) {
+                                width: 42%;
+                            }
+                            .ar_chk_equipment_status th:nth-child(2),
+                            .ar_chk_equipment_status td:nth-child(2) {
                                 text-align: center;
+                                width: 18%;
                             }
-                            .ar_chk_status_horizontal th,
-                            .ar_chk_status_horizontal td {
-                                text-align: center;
-                                width: auto;
+                            .ar_chk_equipment_status th:nth-child(3),
+                            .ar_chk_equipment_status td:nth-child(3) {
+                                width: 40%;
                             }
-                            .ar_chk_status_horizontal th {
-                                color: #0f172a;
-                                font-weight: 900;
-                            }
-                            .ar_chk_status_horizontal td {
-                                color: #334155;
-                                font-weight: 700;
-                            }
-                            .ar_chk_equipment_strip {
-                                width: 100%;
-                                border-collapse: separate;
-                                border-spacing: 4px 0;
-                            }
-                            .ar_chk_equipment_strip td {
-                                border: 1px solid #d8dde3;
-                                border-radius: 4px;
-                                padding: 5px 4px;
-                                text-align: center;
-                                vertical-align: middle;
-                            }
-                            .ar_chk_equipment_name {
-                                color: #0f172a;
-                                display: block;
-                                font-size: 9px;
-                                font-weight: 900;
-                                line-height: 1.15;
-                                min-height: 22px;
-                            }
-                            .ar_chk_equipment_state {
+                            .ar_chk_equipment_status td:nth-child(2) {
                                 color: #0f766e;
-                                display: block;
-                                font-size: 9px;
                                 font-weight: 900;
-                                margin-top: 4px;
                             }
                             .ar_chk_comment {
                                 min-height: 48px;
@@ -448,25 +422,19 @@
                                 <td style="width: 65%;" t-if="o.equipment_line_ids.filtered('state')">
                                     <div class="ar_chk_box">
                                         <h3>Statuts équipements</h3>
-                                        <table class="ar_chk_equipment_strip">
-                                            <tr>
-                                                <td t-foreach="o.equipment_line_ids.filtered('state')" t-as="equip">
-                                                    <span class="ar_chk_equipment_name" t-field="equip.equipment_id"/>
-                                                    <span class="ar_chk_equipment_state" t-field="equip.state"/>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        <table class="ar_chk_table ar_chk_status" t-if="False">
+                                        <table class="ar_chk_table ar_chk_equipment_status">
                                             <thead>
                                                 <tr>
                                                     <th>Équipement</th>
                                                     <th>État</th>
+                                                    <th t-if="o.equipment_line_ids.filtered('comment')">Commentaire</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr t-foreach="o.equipment_line_ids.filtered('state')" t-as="equip">
                                                     <td><span t-field="equip.equipment_id"/></td>
                                                     <td><span t-field="equip.state"/></td>
+                                                    <td t-if="o.equipment_line_ids.filtered('comment')"><span t-if="equip.comment" t-field="equip.comment"/></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -474,7 +442,6 @@
                                 </td>
                             </tr>
                         </table>
-                        </div>
 
                         <div class="ar_chk_box" t-if="o.signature_1_user_id or o.signature_2_user_id">
                             <h3>Historique des signatures</h3>
@@ -499,6 +466,7 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
                         </div>
 
                         <div class="ar_chk_box" t-if="o.observations">

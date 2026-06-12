@@ -12,6 +12,7 @@ class ArEquipmentCardsField extends Component {
 
     setup() {
         this.setState = this.setState.bind(this);
+        this.updateComment = this.updateComment.bind(this);
     }
 
     get records() {
@@ -30,11 +31,26 @@ class ArEquipmentCardsField extends Component {
         return record.data.state === state;
     }
 
+    needsComment(record) {
+        return ["nok", "abs"].includes(record.data.state);
+    }
+
     async setState(record, state) {
         if (this.props.readonly) {
             return;
         }
-        await record.update({ state });
+        const values = { state };
+        if (state === "ok") {
+            values.comment = "";
+        }
+        await record.update(values);
+    }
+
+    async updateComment(record, comment) {
+        if (this.props.readonly) {
+            return;
+        }
+        await record.update({ comment });
     }
 }
 

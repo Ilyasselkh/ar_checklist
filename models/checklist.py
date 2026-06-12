@@ -280,6 +280,8 @@ class ArChecklist(models.Model):
         self.write({"active": False})
 
     def action_save_checklist(self):
+        for rec in self:
+            rec.equipment_line_ids._check_required_comment()
         return True
 
     def action_signature_1(self):
@@ -288,6 +290,7 @@ class ArChecklist(models.Model):
                 raise ValidationError(_("Cette check-list est archivée. Vous devez la désarchiver avant de la modifier."))
             if rec.workflow_state != "signature_1":
                 continue
+            rec.equipment_line_ids._check_required_comment()
             if not rec.next_chef_id:
                 raise ValidationError(_("Veuillez renseigner le Chef d'équipe suivant avant la Signature 1."))
             rec.with_context(ar_checklist_workflow_write=True).write({
@@ -334,7 +337,6 @@ class ArChecklistLine(models.Model):
     )
     client_line_id = fields.Many2one("ar.checklist.client.line", string="Client / Reference")
     quantity = fields.Float(string="Nb de palettes")
-
     def _check_signature_editable(self):
         if any(line.checklist_id.workflow_state == "signature_2" for line in self):
             raise ValidationError(_("Cette check-list est en Signature 2. Elle n'est plus modifiable."))
@@ -376,9 +378,17 @@ class ArChecklistEquipmentLine(models.Model):
     sequence = fields.Integer(related="equipment_id.sequence", store=True)
     state = fields.Selection([("ok", "OK"), ("nok", "NOK"), ("abs", "ABS")], string="État")
 
+    comment = fields.Text(string="Commentaire")
+
     def _check_signature_editable(self):
         if any(line.checklist_id.workflow_state == "signature_2" for line in self):
             raise ValidationError(_("Cette check-list est en Signature 2. Elle n'est plus modifiable."))
+
+    def _check_required_comment(self):
+        missing_comment = self.filtered(lambda line: line.state in ("nok", "abs") and not (line.comment or "").strip())
+        if missing_comment:
+            names = ", ".join(missing_comment.mapped("equipment_id.name"))
+            raise ValidationError(_("Veuillez renseigner un commentaire pour les équipements NOK ou ABS : %s") % names)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -391,7 +401,9 @@ class ArChecklistEquipmentLine(models.Model):
             archived_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: not rec.active)
             if archived_checklists:
                 raise ValidationError(_("Cette check-list est archivée. Vous devez la désarchiver avant de la modifier."))
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records._check_required_comment()
+        return records
 
     def write(self, vals):
         if vals and any(not line.checklist_id.active for line in self):
@@ -400,7 +412,9 @@ class ArChecklistEquipmentLine(models.Model):
             self._check_signature_editable()
         if "equipment_id" in vals:
             raise ValidationError(_("Vous pouvez modifier uniquement l'état des équipements."))
-        return super().write(vals)
+        result = super().write(vals)
+        self._check_required_comment()
+        return result
 
     def _set_state(self, state):
         self.write({"state": state})

@@ -467,6 +467,31 @@
         color: #fff;
     }
 
+    .ar_checklist_equipment_area .ar_equipment_comment {
+        margin-top: 10px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .ar_checklist_equipment_area .ar_equipment_comment textarea {
+        width: 100%;
+        min-height: 54px;
+        resize: vertical;
+        border: 1px solid #dbe3ea;
+        border-radius: 7px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #0f172a;
+        font-size: 12px;
+        line-height: 1.35;
+        padding: 7px 8px;
+    }
+
+    .ar_checklist_equipment_area .ar_equipment_comment textarea:focus {
+        border-color: #0f766e;
+        box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.14);
+        outline: none;
+    }
+
     .o_field_x2many_list {
         min-height: 142px;
     }
