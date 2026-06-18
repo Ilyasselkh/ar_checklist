@@ -3,7 +3,7 @@
     <record id="seq_ar_checklist" model="ir.sequence">
         <field name="name">Check-list de passation de changement d'équipe</field>
         <field name="code">ar.checklist</field>
-        <field name="prefix">CHK-</field>
+        <field name="prefix">LOG-CHK-</field>
         <field name="padding">5</field>
     </record>
 </odoo>

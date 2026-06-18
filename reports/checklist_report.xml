@@ -391,10 +391,10 @@
                                     <div class="ar_chk_box">
                                         <h3>Alimentation Tri</h3>
                                         <table class="ar_chk_table">
-                                            <thead><tr><th>N° dossier</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
+                                            <thead><tr><th>Référence</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
                                             <tbody>
                                                 <tr t-foreach="o.alim_tri_line_ids" t-as="line">
-                                                    <td><span t-esc="line.dossier_id.referenceID or ''"/></td>
+                                                    <td><span t-esc="line.reference or line.dossier_id.referenceID or ''"/></td>
                                                     <td class="ar_chk_num"><span t-field="line.quantity"/></td>
                                                 </tr>
                                             </tbody>

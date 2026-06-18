@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
@@ -340,7 +340,18 @@ class ArChecklistLine(models.Model):
         string="N° dossier",
         context={"ar_checklist_reference_display": True},
     )
+    reference = fields.Char(string="Référence")
     quantity = fields.Float(string="Nb de palettes")
+    dossier_date_from = fields.Datetime(compute="_compute_dossier_date_window")
+    dossier_date_to = fields.Datetime(compute="_compute_dossier_date_window")
+
+    def _compute_dossier_date_window(self):
+        today = fields.Date.context_today(self)
+        date_from = datetime.combine(today - timedelta(days=14), datetime.min.time())
+        date_to = datetime.combine(today + timedelta(days=1), datetime.min.time())
+        for line in self:
+            line.dossier_date_from = date_from
+            line.dossier_date_to = date_to
     def _check_signature_editable(self):
         if any(line.checklist_id.workflow_state == "signature_2" for line in self):
             raise ValidationError(_("Cette check-list est en Signature 2. Elle n'est plus modifiable."))
