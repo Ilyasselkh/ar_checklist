@@ -3,7 +3,12 @@ access_ar_checklist_user,ar.checklist user,model_ar_checklist,base.group_user,1,
 access_ar_checklist_line_user,ar.checklist.line user,model_ar_checklist_line,base.group_user,1,1,1,1
 access_ar_checklist_operator_line_user,ar.checklist.operator.line user,model_ar_checklist_operator_line,base.group_user,1,1,1,1
 access_ar_checklist_equipment_line_user,ar.checklist.equipment.line user,model_ar_checklist_equipment_line,base.group_user,1,1,1,1
+access_ar_checklist_zone_line_user,ar.checklist.zone.line user,model_ar_checklist_zone_line,base.group_user,1,1,1,1
 access_ar_checklist_documentation_user,ar.checklist.documentation user,model_ar_checklist_documentation,base.group_user,1,1,1,0
 access_ar_checklist_equipment_read,ar.checklist.equipment read,model_ar_checklist_equipment,base.group_user,1,0,0,0
 access_ar_checklist_equipment_param,ar.checklist.equipment param,model_ar_checklist_equipment,ar_checklist.group_ar_checklist_param,1,1,1,1
+access_ar_checklist_zone_read,ar.checklist.zone read,model_ar_checklist_zone,base.group_user,1,0,0,0
+access_ar_checklist_zone_param,ar.checklist.zone param,model_ar_checklist_zone,ar_checklist.group_ar_checklist_param,1,1,1,1
 access_ar_checklist_kadouane_dossier_read,kadouane.kadouane dossier read,kadouane.model_kadouane_kadouane,base.group_user,1,0,0,0
+access_ar_checklist_disagreement_wizard,ar.checklist.disagreement.wizard,model_ar_checklist_disagreement_wizard,base.group_user,1,1,1,1
+access_ar_checklist_supervisor_decision_wizard,ar.checklist.supervisor.decision.wizard,model_ar_checklist_supervisor_decision_wizard,base.group_user,1,1,1,1

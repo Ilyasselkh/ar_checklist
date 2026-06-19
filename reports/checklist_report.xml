@@ -15,7 +15,7 @@
     </record>
 
     <record id="action_report_ar_checklist" model="ir.actions.report">
-        <field name="name">Check-list de passation de changement d'équipe</field>
+        <field name="name">Check-list de passation</field>
         <field name="model">ar.checklist</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">ar_checklist.report_ar_checklist_document</field>
@@ -241,7 +241,7 @@
                         </style>
 
                         <div class="ar_chk_title">
-                            <div class="ar_chk_badge">Check-list de passation de changement d'équipe</div>
+                            <div class="ar_chk_badge">Check-list de passation</div>
                             <h1><span t-field="o.name_display"/></h1>
                         </div>
 
@@ -254,9 +254,10 @@
                                             <tr><td class="ar_chk_label">Date</td><td><span t-field="o.date_display"/></td></tr>
                                             <tr><td class="ar_chk_label">Équipe</td><td><span t-field="o.equipe"/></td></tr>
                                             <tr><td class="ar_chk_label">Heure</td><td><span t-field="o.heure" t-options="{'widget': 'float_time'}"/></td></tr>
-                                            <tr><td class="ar_chk_label">Chef d'équipe</td><td><span t-field="o.chef_id"/></td></tr>
+                                            <tr><td class="ar_chk_label">Opérateur polyvalant</td><td><span t-field="o.chef_id"/></td></tr>
                                             <tr><td class="ar_chk_label">État</td><td><span t-field="o.workflow_state"/></td></tr>
-                                            <tr><td class="ar_chk_label">Chef d'équipe suivant</td><td><span t-field="o.next_chef_id"/></td></tr>
+                                            <tr><td class="ar_chk_label">Opérateur Polyvalant suivant</td><td><span t-field="o.next_chef_id"/></td></tr>
+                                            <tr t-if="o.supervisor_id"><td class="ar_chk_label">Superviseur</td><td><span t-field="o.supervisor_id"/></td></tr>
                                             <tr><td class="ar_chk_label">Absence</td><td><span t-field="o.nb_absents"/></td></tr>
                                         </table>
                                     </div>
@@ -354,10 +355,10 @@
                             </tr>
                         </table>
 
-                        <div class="ar_chk_section_heading" t-if="o.att_exp_manuf_line_ids or o.att_exp_trad_line_ids or o.alim_tri_line_ids">Attentes et alimentation</div>
-                        <table class="ar_chk_grid ar_chk_three" t-if="o.att_exp_manuf_line_ids or o.att_exp_trad_line_ids or o.alim_tri_line_ids">
+                        <div class="ar_chk_section_heading" t-if="o.att_exp_manuf_line_ids or o.att_exp_trad_line_ids or o.alim_tri_line_ids or o.dechargement_line_ids">Attentes, alimentation et déchargement</div>
+                        <table class="ar_chk_grid ar_chk_three" t-if="o.att_exp_manuf_line_ids or o.att_exp_trad_line_ids or o.alim_tri_line_ids or o.dechargement_line_ids">
                             <tr>
-                                <td style="width: 33.33%;" t-if="o.att_exp_manuf_line_ids">
+                                <td style="width: 25%;" t-if="o.att_exp_manuf_line_ids">
                                     <div class="ar_chk_box">
                                         <h3>Attente Expédition Manuf</h3>
                                         <table class="ar_chk_table">
@@ -372,7 +373,7 @@
                                         <div class="ar_chk_total">TOTAL: <span t-field="o.total_att_exp_manuf"/></div>
                                     </div>
                                 </td>
-                                <td style="width: 33.33%;" t-if="o.att_exp_trad_line_ids">
+                                <td style="width: 25%;" t-if="o.att_exp_trad_line_ids">
                                     <div class="ar_chk_box">
                                         <h3>Attente Expédition Trad</h3>
                                         <table class="ar_chk_table">
@@ -387,7 +388,7 @@
                                         <div class="ar_chk_total">TOTAL: <span t-field="o.total_att_exp_trad"/></div>
                                     </div>
                                 </td>
-                                <td style="width: 33.33%;" t-if="o.alim_tri_line_ids">
+                                <td style="width: 25%;" t-if="o.alim_tri_line_ids">
                                     <div class="ar_chk_box">
                                         <h3>Alimentation Tri</h3>
                                         <table class="ar_chk_table">
@@ -402,27 +403,51 @@
                                         <div class="ar_chk_total">TOTAL: <span t-field="o.total_alim_tri"/></div>
                                     </div>
                                 </td>
+                                <td style="width: 25%;" t-if="o.dechargement_line_ids">
+                                    <div class="ar_chk_box">
+                                        <h3>Déchargement</h3>
+                                        <table class="ar_chk_table">
+                                            <thead><tr><th>N° dossier</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
+                                            <tbody>
+                                                <tr t-foreach="o.dechargement_line_ids" t-as="line">
+                                                    <td><span t-esc="line.dossier_id.referenceID or ''"/></td>
+                                                    <td class="ar_chk_num"><span t-field="line.quantity"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="ar_chk_total">TOTAL: <span t-field="o.total_dechargement"/></div>
+                                    </div>
+                                </td>
                             </tr>
                         </table>
 
-                        <div class="ar_chk_keep_together" t-if="o.nb_palettes_sol or o.nb_palettes_rci or o.nb_emp_vides_fg or o.equipment_line_ids.filtered('state')">
+                        <div class="ar_chk_keep_together" t-if="o.nb_palettes_sol or o.nb_palettes_rci or o.nb_emp_vides_fg or o.nb_test or o.equipment_line_ids.filtered('state') or o.zone_line_ids.filtered('state') or (o.disagreement_motif or '').strip() or (o.supervisor_motif or '').strip()">
                         <div class="ar_chk_section_heading">Contrôles complémentaires</div>
                         <table class="ar_chk_grid ar_chk_bottom">
                             <tr>
-                                <td style="width: 35%;" t-if="o.nb_palettes_sol or o.nb_palettes_rci or o.nb_emp_vides_fg">
-                                    <div class="ar_chk_box">
+                                <td style="width: 35%;" t-if="o.nb_palettes_sol or o.nb_palettes_rci or o.nb_emp_vides_fg or o.nb_test or (o.disagreement_motif or '').strip() or (o.supervisor_motif or '').strip()">
+                                    <div class="ar_chk_box" t-if="o.nb_palettes_sol or o.nb_palettes_rci or o.nb_emp_vides_fg or o.nb_test">
                                         <h3>Compteurs</h3>
                                         <table class="ar_chk_info">
                                             <tr t-if="o.nb_palettes_sol"><td class="ar_chk_label">Nb Palettes Sol</td><td><span t-field="o.nb_palettes_sol"/></td></tr>
                                             <tr t-if="o.nb_palettes_rci"><td class="ar_chk_label">Nb Palettes RCI</td><td><span t-field="o.nb_palettes_rci"/></td></tr>
                                             <tr t-if="o.nb_emp_vides_fg"><td class="ar_chk_label">Nb Emp Vides FG</td><td><span t-field="o.nb_emp_vides_fg"/></td></tr>
+                                            <tr t-if="o.nb_test"><td class="ar_chk_label">Nb de Test</td><td><span t-field="o.nb_test"/></td></tr>
                                         </table>
                                     </div>
+                                    <div class="ar_chk_box" t-if="(o.disagreement_motif or '').strip()" style="margin-top: 8px;">
+                                        <h3>Motif de refus Opérateur</h3>
+                                        <div class="ar_chk_comment"><span t-field="o.disagreement_motif"/></div>
+                                    </div>
+                                    <div class="ar_chk_box" t-if="(o.supervisor_motif or '').strip()" style="margin-top: 8px;">
+                                        <h3>Motif de refus Superviseur</h3>
+                                        <div class="ar_chk_comment"><span t-field="o.supervisor_motif"/></div>
+                                    </div>
                                 </td>
-                                <td style="width: 65%;" t-if="o.equipment_line_ids.filtered('state')">
+                                <td style="width: 65%;" t-if="o.equipment_line_ids.filtered('state') or o.zone_line_ids.filtered('state')">
                                     <div class="ar_chk_box">
-                                        <h3>Statuts équipements</h3>
-                                        <table class="ar_chk_table ar_chk_equipment_status">
+                                        <h3 t-if="o.equipment_line_ids.filtered('state')">Statuts équipements</h3>
+                                        <table class="ar_chk_table ar_chk_equipment_status" t-if="o.equipment_line_ids.filtered('state')">
                                             <thead>
                                                 <tr>
                                                     <th>Équipement</th>
@@ -438,12 +463,29 @@
                                                 </tr>
                                             </tbody>
                                         </table>
+                                        <h3 t-if="o.zone_line_ids.filtered('state')" style="margin-top: 8px;">Statuts zones</h3>
+                                        <table class="ar_chk_table ar_chk_equipment_status" t-if="o.zone_line_ids.filtered('state')">
+                                            <thead>
+                                                <tr>
+                                                    <th>Zone</th>
+                                                    <th>État</th>
+                                                    <th t-if="o.zone_line_ids.filtered('comment')">Commentaire</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="o.zone_line_ids.filtered('state')" t-as="zone">
+                                                    <td><span t-field="zone.zone_id"/></td>
+                                                    <td><span t-field="zone.state"/></td>
+                                                    <td t-if="o.zone_line_ids.filtered('comment')"><span t-if="zone.comment" t-field="zone.comment"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </td>
                             </tr>
                         </table>
 
-                        <div class="ar_chk_box" t-if="o.signature_1_user_id or o.signature_2_user_id">
+                        <div class="ar_chk_box" t-if="o.signature_1_user_id or o.signature_2_user_id or o.disagreement_user_id or o.supervisor_decision_user_id">
                             <h3>Historique des signatures</h3>
                             <table class="ar_chk_table ar_chk_signature_history">
                                 <thead>
@@ -464,18 +506,39 @@
                                         <td><span t-field="o.signature_2_user_id"/></td>
                                         <td><span t-field="o.signature_2_date"/></td>
                                     </tr>
+                                    <tr t-if="o.disagreement_user_id">
+                                        <td>Non d'accord</td>
+                                        <td><span t-field="o.disagreement_user_id"/></td>
+                                        <td><span t-field="o.disagreement_date"/></td>
+                                    </tr>
+                                    <tr t-if="o.supervisor_decision_user_id">
+                                        <td>
+                                            <span t-if="o.supervisor_decision == 'validated'">Validation superviseur</span>
+                                            <span t-if="o.supervisor_decision == 'refused'">Refus superviseur</span>
+                                        </td>
+                                        <td><span t-field="o.supervisor_decision_user_id"/></td>
+                                        <td><span t-field="o.supervisor_decision_date"/></td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
                         </div>
 
-                        <div class="ar_chk_box" t-if="o.observations">
-                            <h3>Commentaire général</h3>
-                            <div class="ar_chk_comment"><span t-field="o.observations"/></div>
-                        </div>
+                        <table class="ar_chk_grid" t-if="(o.observations or '').strip()">
+                            <tr>
+                                <td style="width: 100%;">
+                                    <div class="ar_chk_box">
+                                        <h3>Commentaire général</h3>
+                                        <div class="ar_chk_comment"><span t-field="o.observations"/></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
                     </div>
                 </t>
             </t>
         </t>
     </template>
 </odoo>
+

@@ -4,14 +4,15 @@
         <field name="name">ar.checklist.list</field>
         <field name="model">ar.checklist</field>
         <field name="arch" type="xml">
-            <list>
+            <list decoration-success="supervisor_decision == 'validated' or workflow_state == 'archive'" decoration-danger="supervisor_decision == 'refused'">
                 <field name="name_display" string="Référence" width="160px"/>
                 <field name="date_display" string="Date" width="160px"/>
                 <field name="workflow_state" string="État" width="160px"/>
+                <field name="supervisor_decision" string="Décision superviseur" width="160px"/>
                 <field name="equipe" string="Équipe" width="160px"/>
                 <field name="heure" widget="float_time" width="160px"/>
-                <field name="chef_id" string="Chef d'équipe" width="160px"/>
-                <field name="next_chef_id" string="Chef d'équipe suivant" width="160px"/>
+                <field name="chef_id" string="Opérateur polyvalant" width="160px"/>
+                <field name="next_chef_id" string="Opérateur Polyvalant suivant" width="160px"/>
                 <field name="nb_absents" string="Nombre d'absence" width="160px"/>
             </list>
         </field>
@@ -25,6 +26,7 @@
                 <field name="name_display"/>
                 <field name="date_display"/>
                 <field name="workflow_state"/>
+                <field name="supervisor_decision"/>
                 <field name="equipe"/>
                 <field name="heure"/>
                 <field name="chef_id"/>
@@ -37,6 +39,7 @@
                 <field name="total_att_exp_manuf"/>
                 <field name="total_att_exp_trad"/>
                 <field name="total_alim_tri"/>
+                <field name="total_dechargement"/>
                 <templates>
                     <t t-name="card">
                         <div class="oe_kanban_global_click oe_kanban_card ar_checklist_card">
@@ -51,7 +54,7 @@
                             <div class="ar_card_person">
                                 <span class="ar_card_avatar"><i class="fa fa-users"/></span>
                                 <div>
-                                    <span class="ar_card_label">Chef d'équipe</span>
+                                    <span class="ar_card_label">Opérateur polyvalant</span>
                                     <strong><field name="chef_id"/></strong>
                                 </div>
                             </div>
@@ -77,6 +80,10 @@
                                     <span class="ar_card_label">Alim. Tri</span>
                                     <strong><field name="total_alim_tri"/></strong>
                                 </div>
+                                <div>
+                                    <span class="ar_card_label">Déchargement</span>
+                                    <strong><field name="total_dechargement"/></strong>
+                                </div>
                             </div>
                         </div>
                     </t>
@@ -89,16 +96,19 @@
         <field name="name">ar.checklist.form</field>
         <field name="model">ar.checklist</field>
         <field name="arch" type="xml">
-            <form string="Check-list de passation de changement d'équipe" class="ar_checklist_form">
+            <form string="Check-list de passation" class="ar_checklist_form">
                 <header>
                     <button name="action_signature_1" string="Signature" type="object" class="btn-primary ar_checklist_btn_signature" invisible="not active or workflow_state != 'signature_1'"/>
                     <button name="action_signature_2" string="Signature" type="object" class="btn-primary ar_checklist_btn_signature" invisible="not active or workflow_state != 'signature_2' or not is_next_chef or signature_2_user_id"/>
+                    <button name="action_open_disagreement_wizard" string="Non d'accord" type="object" class="btn-danger" invisible="not active or workflow_state != 'signature_2' or not is_next_chef or signature_2_user_id"/>
+                    <button name="action_open_supervisor_decision_wizard" string="Valider" type="object" class="btn-success ar_checklist_btn_supervisor_validate" context="{'supervisor_decision': 'validated'}" invisible="not active or workflow_state != 'superviseur' or not is_supervisor or supervisor_decision"/>
+                    <button name="action_open_supervisor_decision_wizard" string="Refuser" type="object" class="btn-danger ar_checklist_btn_supervisor_refuse" context="{'supervisor_decision': 'refused'}" invisible="not active or workflow_state != 'superviseur' or not is_supervisor or supervisor_decision"/>
                     <button name="action_save_checklist" string="Enregistrer" type="object" class="btn-primary ar_checklist_btn_save" invisible="not active or workflow_state != 'signature_1'"/>
-                    <field name="workflow_state" widget="statusbar" statusbar_visible="signature_1,signature_2"/>
+                    <field name="workflow_state" widget="statusbar" statusbar_visible="signature_1,signature_2,superviseur,archive"/>
                 </header>
                 <sheet>
                     <div class="ar_checklist_hero">
-                        <div class="ar_checklist_hero_badge">Check-list de passation de changement d'équipe</div>
+                        <div class="ar_checklist_hero_badge">Check-list de passation</div>
                         <h1>
                             <field name="name_display" readonly="1"/>
                         </h1>
@@ -110,22 +120,26 @@
                                 <field name="active" invisible="1"/>
                                 <field name="workflow_state" invisible="1"/>
                                 <field name="is_next_chef" invisible="1"/>
+                                <field name="is_supervisor" invisible="1"/>
                                 <field name="signature_2_user_id" invisible="1"/>
+                                <field name="supervisor_decision" invisible="1"/>
                                 <field name="date" invisible="1"/>
                                 <field name="date_display" readonly="1"/>
                                 <field name="heure" widget="float_time" readonly="1"/>
                                 <field name="chef_id" readonly="1"/>
                                 <field name="nb_absents" readonly="1"/>
                                 <field name="equipe" readonly="not active or workflow_state != 'signature_1'"/>
-                                <field name="next_chef_id" readonly="not active or workflow_state != 'signature_1'" options="{'no_create': True, 'no_create_edit': True}"/>
+                                <field name="next_chef_id" string="Opérateur Polyvalant suivant" readonly="not active or workflow_state != 'signature_1'" options="{'no_create': True, 'no_create_edit': True}"/>
+                                <field name="supervisor_id" readonly="1" invisible="not supervisor_id"/>
                             </group>
                         </div>
 
                         <div class="ar_checklist_presence_panel">
                             <div class="ar_checklist_panel_title">Opérateurs affectés</div>
-                            <field name="operator_presence_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}">
-                                <list editable="bottom" create="0" delete="0" open_form_view="false">
-                                    <field name="operator_name" string="Opérateur" readonly="1" force_save="1"/>
+                            <field name="operator_presence_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" options="{'no_open': True}">
+                                <list editable="bottom" open_form_view="false">
+                                    <field name="employee_id" string="Opérateur" options="{'no_create': True, 'no_create_edit': True}"/>
+                                    <field name="operator_name" column_invisible="1" force_save="1"/>
                                     <field name="present" string="Présence"/>
                                 </list>
                             </field>
@@ -179,9 +193,7 @@
                                 <field name="exp_manuf_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'exp_manuf'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="dossier_date_from" column_invisible="1"/>
-                                        <field name="dossier_date_to" column_invisible="1"/>
-                                        <field name="dossier_id" string="N° dossier" domain="[('create_date', '&gt;=', dossier_date_from), ('create_date', '&lt;', dossier_date_to)]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="dossier_id" string="N° dossier" domain="[]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -195,9 +207,7 @@
                                 <field name="exp_trad_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'exp_trad'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="dossier_date_from" column_invisible="1"/>
-                                        <field name="dossier_date_to" column_invisible="1"/>
-                                        <field name="dossier_id" string="N° dossier" domain="[('create_date', '&gt;=', dossier_date_from), ('create_date', '&lt;', dossier_date_to)]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="dossier_id" string="N° dossier" domain="[]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -260,11 +270,32 @@
                                     <field name="total_alim_tri" nolabel="1" readonly="1"/>
                                 </div>
                             </div>
+
+                            <div class="ar_checklist_subsection">
+                                <div class="ar_checklist_subsection_title">DECHARGEMENT (Nb de palettes)</div>
+                                <field name="dechargement_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'dechargement'}">
+                                    <list editable="bottom">
+                                        <field name="section" column_invisible="1"/>
+                                        <field name="dossier_id" string="N° dossier" domain="[]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="quantity" string="Nb palettes"/>
+                                    </list>
+                                </field>
+                                <div class="ar_checklist_total_line">
+                                    <span>TOTAL Déchargement</span>
+                                    <field name="total_dechargement" nolabel="1" readonly="1"/>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="ar_checklist_subsection ar_checklist_comment_box">
-                            <div class="ar_checklist_subsection_title">Commentaire général</div>
-                            <field name="observations" nolabel="1" readonly="not active or workflow_state != 'signature_1'" placeholder="Commentaire général..."/>
+                        <div class="ar_checklist_comment_area">
+                            <div class="ar_checklist_subsection ar_checklist_comment_box">
+                                <div class="ar_checklist_subsection_title">Commentaire général</div>
+                                <field name="observations" nolabel="1" readonly="not active or workflow_state != 'signature_1'" placeholder="Commentaire général..."/>
+                            </div>
+                            <div class="ar_checklist_subsection ar_checklist_attachment_box">
+                                <div class="ar_checklist_subsection_title">Photo &amp; Pièces jointes</div>
+                                <field name="attachment_ids" widget="many2many_binary" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
+                            </div>
                         </div>
                     </div>
 
@@ -281,6 +312,21 @@
                             <div class="ar_checklist_small_title">Nb Emp Vides FG</div>
                             <field name="nb_emp_vides_fg" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
                         </div>
+                        <div class="ar_checklist_small_box">
+                            <div class="ar_checklist_small_title">Nb de Test</div>
+                            <field name="nb_test" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
+                        </div>
+                    </div>
+
+                    <div class="ar_checklist_motif_area" invisible="not disagreement_motif and not supervisor_motif">
+                        <div class="ar_checklist_subsection ar_checklist_disagreement_box" invisible="not disagreement_motif">
+                            <div class="ar_checklist_subsection_title">Motif de refus Opérateur</div>
+                            <field name="disagreement_motif" nolabel="1" readonly="1"/>
+                        </div>
+                        <div class="ar_checklist_subsection ar_checklist_disagreement_box" invisible="not supervisor_motif">
+                            <div class="ar_checklist_subsection_title">Motif de refus Superviseur</div>
+                            <field name="supervisor_motif" nolabel="1" readonly="1"/>
+                        </div>
                     </div>
 
                     <div class="ar_checklist_equipment_area">
@@ -288,6 +334,14 @@
                         <field name="equipment_line_ids" widget="ar_equipment_cards" nolabel="1" readonly="not active or workflow_state != 'signature_1'">
                             <list>
                                 <field name="equipment_id"/>
+                                <field name="state"/>
+                                <field name="comment"/>
+                            </list>
+                        </field>
+                        <div class="ar_checklist_panel_title ar_checklist_zone_title">Zones</div>
+                        <field name="zone_line_ids" widget="ar_equipment_cards" nolabel="1" readonly="not active or workflow_state != 'signature_1'">
+                            <list>
+                                <field name="zone_id"/>
                                 <field name="state"/>
                                 <field name="comment"/>
                             </list>
@@ -312,7 +366,7 @@
                 <filter string="Archivées" name="archived" domain="[('active', '=', False)]" context="{'active_test': False}"/>
                 <group>
                     <filter string="Équipe" name="group_equipe" context="{'group_by': 'equipe'}"/>
-                    <filter string="Chef d'équipe" name="group_chef" context="{'group_by': 'chef_id'}"/>
+                    <filter string="Opérateur polyvalant" name="group_chef" context="{'group_by': 'chef_id'}"/>
                     <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
                 </group>
             </search>
@@ -320,7 +374,7 @@
     </record>
 
     <record id="action_ar_checklist" model="ir.actions.act_window">
-        <field name="name">Check-list de passation de changement d'équipe</field>
+        <field name="name">Check-list de passation</field>
         <field name="res_model">ar.checklist</field>
         <field name="view_mode">list,kanban,form</field>
         <field name="search_view_id" ref="view_ar_checklist_search"/>
@@ -335,3 +389,4 @@
         <field name="search_view_id" ref="view_ar_checklist_search"/>
     </record>
 </odoo>
+

@@ -1,7 +1,7 @@
 {
     "name": "AR - Check-list",
     "version": "1.0.0",
-    "summary": "Check-list de passation de changement d'équipe",
+    "summary": "Check-list de passation",
     "description": """
 Module de gestion des check-lists de passation de changement d'équipe avec archives, documentation
 et opérateurs affectés depuis le module RH.
@@ -20,8 +20,11 @@ et opérateurs affectés depuis le module RH.
         "security/security.xml",
         "security/ir.model.access.csv",
         "reports/checklist_report.xml",
+        "wizard/disagreement_wizard_views.xml",
+        "wizard/supervisor_decision_wizard_views.xml",
         "views/checklist_views.xml",
         "views/equipment_views.xml",
+        "views/zone_views.xml",
         "views/documentation_views.xml",
         "views/menus.xml",
     ],
@@ -35,3 +38,4 @@ et opérateurs affectés depuis le module RH.
     "application": True,
     "installable": True,
 }
+

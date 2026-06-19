@@ -6,7 +6,7 @@ from odoo.exceptions import ValidationError
 
 class ArChecklist(models.Model):
     _name = "ar.checklist"
-    _description = "Check-list de passation de changement d'équipe"
+    _description = "Check-list de passation"
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "date desc, id desc"
 
@@ -17,6 +17,8 @@ class ArChecklist(models.Model):
         [
             ("signature_1", "Signature 1"),
             ("signature_2", "Signature 2"),
+            ("superviseur", "Superviseur"),
+            ("archive", "Archive"),
         ],
         string="État",
         default="signature_1",
@@ -36,13 +38,31 @@ class ArChecklist(models.Model):
         tracking=True,
     )
     heure = fields.Float(string="Heure", default=lambda self: self._default_heure(), tracking=True)
-    next_chef_id = fields.Many2one("res.users", string="Chef d'équipe suivant", tracking=True)
+    next_chef_id = fields.Many2one("res.users", string="Opérateur Polyvalant suivant", tracking=True)
     is_next_chef = fields.Boolean(compute="_compute_is_next_chef")
+    supervisor_id = fields.Many2one("res.users", string="Superviseur", readonly=True, copy=False, tracking=True)
+    is_supervisor = fields.Boolean(compute="_compute_is_supervisor")
+    disagreement_motif = fields.Text(string="Motif Non d'accord", readonly=True, copy=False)
+    disagreement_user_id = fields.Many2one("res.users", string="Non d'accord par", readonly=True, copy=False)
+    disagreement_date = fields.Datetime(string="Date Non d'accord", readonly=True, copy=False)
+    supervisor_decision = fields.Selection(
+        [
+            ("validated", "Validée"),
+            ("refused", "Refusée"),
+        ],
+        string="Décision superviseur",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    supervisor_motif = fields.Text(string="Motif de refus Superviseur", readonly=True, copy=False)
+    supervisor_decision_user_id = fields.Many2one("res.users", string="Décision superviseur par", readonly=True, copy=False)
+    supervisor_decision_date = fields.Datetime(string="Date décision superviseur", readonly=True, copy=False)
     signature_1_user_id = fields.Many2one("res.users", string="Signé 1 par", readonly=True, copy=False)
     signature_1_date = fields.Datetime(string="Date signature 1", readonly=True, copy=False)
     signature_2_user_id = fields.Many2one("res.users", string="Signé 2 par", readonly=True, copy=False)
     signature_2_date = fields.Datetime(string="Date signature 2", readonly=True, copy=False)
-    chef_id = fields.Many2one("res.users", string="Chef d'équipe", default=lambda self: self.env.user, tracking=True)
+    chef_id = fields.Many2one("res.users", string="Opérateur polyvalant", default=lambda self: self.env.user, tracking=True)
     operator_presence_ids = fields.One2many(
         "ar.checklist.operator.line",
         "checklist_id",
@@ -54,6 +74,12 @@ class ArChecklist(models.Model):
         "checklist_id",
         string="Équipements",
         default=lambda self: self._default_equipment_line_commands(),
+    )
+    zone_line_ids = fields.One2many(
+        "ar.checklist.zone.line",
+        "checklist_id",
+        string="Zones",
+        default=lambda self: self._default_zone_line_commands(),
     )
     nb_absents = fields.Integer(string="Nombre d'absence", compute="_compute_nb_absents", store=True)
 
@@ -106,6 +132,13 @@ class ArChecklist(models.Model):
         domain=[("section", "=", "alim_tri")],
         context={"default_section": "alim_tri"},
     )
+    dechargement_line_ids = fields.One2many(
+        "ar.checklist.line",
+        "checklist_id",
+        string="Déchargement",
+        domain=[("section", "=", "dechargement")],
+        context={"default_section": "dechargement"},
+    )
     line_ids = fields.One2many("ar.checklist.line", "checklist_id", string="Toutes les lignes")
 
     total_prep_manuf = fields.Float(string="TOTAL PREP MANUF", compute="_compute_totals", store=True)
@@ -115,21 +148,47 @@ class ArChecklist(models.Model):
     total_att_exp_manuf = fields.Float(string="TOTAL Att Exp Manuf", compute="_compute_totals", store=True)
     total_att_exp_trad = fields.Float(string="TOTAL Att Exp Trad", compute="_compute_totals", store=True)
     total_alim_tri = fields.Float(string="TOTAL Alim Tri", compute="_compute_totals", store=True)
+    total_dechargement = fields.Float(string="TOTAL Déchargement", compute="_compute_totals", store=True)
 
     nb_palettes_sol = fields.Integer(string="Nb Palettes Sol", tracking=True)
     nb_palettes_rci = fields.Integer(string="Nb Palettes RCI", tracking=True)
     nb_emp_vides_fg = fields.Integer(string="Nb Emp Vides FG", tracking=True)
+    nb_test = fields.Integer(string="Nb de Test", tracking=True)
     observations = fields.Text(string="Commentaire général", tracking=True)
+    attachment_ids = fields.Many2many(
+        "ir.attachment",
+        "ar_checklist_attachment_rel",
+        "checklist_id",
+        "attachment_id",
+        string="Photo & Pièces jointes",
+        tracking=True,
+    )
 
     def _default_heure(self):
         now = fields.Datetime.context_timestamp(self, datetime.utcnow())
         return now.hour + (now.minute / 60.0)
+
+    @api.model
+    def default_get(self, fields_list):
+        vals = super().default_get(fields_list)
+        if "chef_id" in fields_list and not vals.get("chef_id"):
+            vals["chef_id"] = self.env.user.id
+        if "operator_presence_ids" in fields_list and not vals.get("operator_presence_ids"):
+            chef_user = self.env["res.users"].browse(vals.get("chef_id") or self.env.user.id)
+            vals["operator_presence_ids"] = self._prepare_operator_presence_commands(chef_user, clear=False)
+        return vals
 
     @api.depends("next_chef_id")
     def _compute_is_next_chef(self):
         current_user = self.env.user
         for rec in self:
             rec.is_next_chef = rec.next_chef_id == current_user
+
+    @api.depends("supervisor_id")
+    def _compute_is_supervisor(self):
+        current_user = self.env.user
+        for rec in self:
+            rec.is_supervisor = rec.supervisor_id == current_user
 
     @api.depends("name")
     def _compute_name_display(self):
@@ -178,6 +237,7 @@ class ArChecklist(models.Model):
         "att_exp_manuf_line_ids.quantity",
         "att_exp_trad_line_ids.quantity",
         "alim_tri_line_ids.quantity",
+        "dechargement_line_ids.quantity",
     )
     def _compute_totals(self):
         for rec in self:
@@ -188,6 +248,7 @@ class ArChecklist(models.Model):
             rec.total_att_exp_manuf = sum(rec.att_exp_manuf_line_ids.mapped("quantity"))
             rec.total_att_exp_trad = sum(rec.att_exp_trad_line_ids.mapped("quantity"))
             rec.total_alim_tri = sum(rec.alim_tri_line_ids.mapped("quantity"))
+            rec.total_dechargement = sum(rec.dechargement_line_ids.mapped("quantity"))
 
     @api.onchange(
         "prep_manuf_line_ids",
@@ -204,6 +265,8 @@ class ArChecklist(models.Model):
         "att_exp_trad_line_ids.quantity",
         "alim_tri_line_ids",
         "alim_tri_line_ids.quantity",
+        "dechargement_line_ids",
+        "dechargement_line_ids.quantity",
     )
     def _onchange_totals(self):
         self._compute_totals()
@@ -218,6 +281,7 @@ class ArChecklist(models.Model):
             if rec.chef_id and not rec.operator_presence_ids:
                 rec.operator_presence_ids = rec._prepare_operator_presence_commands(rec.chef_id)
             rec._sync_equipment_lines()
+            rec._sync_zone_lines()
         return records
 
     def write(self, vals):
@@ -225,9 +289,9 @@ class ArChecklist(models.Model):
             raise ValidationError(_("Cette check-list est archivée. Vous devez la désarchiver avant de la modifier."))
         if vals and not self.env.context.get("ar_checklist_workflow_write"):
             protected_fields = set(vals) - {"active"}
-            locked = self.filtered(lambda rec: rec.workflow_state == "signature_2")
+            locked = self.filtered(lambda rec: rec.workflow_state in ("signature_2", "superviseur"))
             if locked and protected_fields:
-                raise ValidationError(_("Cette check-list est en Signature 2. Elle n'est plus modifiable."))
+                raise ValidationError(_("Cette check-list est en validation. Elle n'est plus modifiable."))
         result = super().write(vals)
         if "chef_id" in vals and "operator_presence_ids" not in vals:
             for rec in self:
@@ -237,18 +301,32 @@ class ArChecklist(models.Model):
     def _default_operator_presence_commands(self):
         return self._prepare_operator_presence_commands(self.env.user)
 
-    def _prepare_operator_presence_commands(self, chef_employee):
+    def _prepare_operator_presence_commands(self, chef_employee, clear=True):
         chef_employee = self._employee_for_chef_user(chef_employee)
         if not chef_employee:
             return [(5, 0, 0)]
-        operators = self.env["hr.employee"].sudo().search([
-            ("team_leader_id", "=", chef_employee.id),
-            ("active", "=", True),
-        ], order="name")
-        return [(5, 0, 0)] + [
-            (0, 0, {"operator_id": operator.user_id.id or False, "operator_name": operator.name, "present": True})
+        employee_model = self.env["hr.employee"].sudo()
+        if "team_leader_id" not in employee_model._fields:
+            return [(5, 0, 0)]
+        try:
+            operators = employee_model.search([
+                ("team_leader_id", "=", chef_employee.id),
+                ("active", "=", True),
+            ], order="name")
+        except ValueError:
+            return [(5, 0, 0)]
+        commands = [
+            (0, 0, {
+                "employee_id": operator.id,
+                "operator_id": operator.user_id.id or False,
+                "operator_name": operator.name,
+                "present": True,
+            })
             for operator in operators
         ]
+        if clear:
+            return [(5, 0, 0)] + commands
+        return commands
 
     def _employee_for_chef_user(self, chef_user):
         chef_user = chef_user.exists()
@@ -259,10 +337,25 @@ class ArChecklist(models.Model):
             employee = self.env["hr.employee"].sudo().search([("user_id", "=", chef_user.id)], limit=1)
         return employee
 
+    def _manager_user_for(self, user):
+        employee = self._employee_for_chef_user(user).sudo()
+        manager = employee.parent_id if employee and "parent_id" in employee._fields else self.env["hr.employee"]
+        return manager.user_id if manager and manager.user_id else self.env["res.users"]
+
+    def _get_supervisor_user(self):
+        self.ensure_one()
+        return self._manager_user_for(self.chef_id) or self._manager_user_for(self.next_chef_id)
+
     def _default_equipment_line_commands(self):
         return [
             (0, 0, {"equipment_id": equipment.id})
             for equipment in self.env["ar.checklist.equipment"].search([("active", "=", True)], order="sequence, name")
+        ]
+
+    def _default_zone_line_commands(self):
+        return [
+            (0, 0, {"zone_id": zone.id})
+            for zone in self.env["ar.checklist.zone"].search([("active", "=", True)], order="sequence, name")
         ]
 
     def _sync_equipment_lines(self):
@@ -276,12 +369,29 @@ class ArChecklist(models.Model):
                     "equipment_id": equipment.id,
                 })
 
+    def _sync_zone_lines(self):
+        zone_model = self.env["ar.checklist.zone"]
+        for checklist in self:
+            if checklist.workflow_state != "signature_1":
+                continue
+            existing_zones = checklist.zone_line_ids.mapped("zone_id")
+            missing_zones = zone_model.search([("active", "=", True)], order="sequence, name") - existing_zones
+            for zone in missing_zones:
+                self.env["ar.checklist.zone.line"].create({
+                    "checklist_id": checklist.id,
+                    "zone_id": zone.id,
+                })
+
     def action_archive(self):
-        self.write({"active": False})
+        self.with_context(ar_checklist_workflow_write=True).write({
+            "workflow_state": "archive",
+            "active": False,
+        })
 
     def action_save_checklist(self):
         for rec in self:
             rec.equipment_line_ids._check_required_comment()
+            rec.zone_line_ids._check_required_comment()
         return True
 
     def action_signature_1(self):
@@ -291,8 +401,9 @@ class ArChecklist(models.Model):
             if rec.workflow_state != "signature_1":
                 continue
             rec.equipment_line_ids._check_required_comment()
+            rec.zone_line_ids._check_required_comment()
             if not rec.next_chef_id:
-                raise ValidationError(_("Veuillez renseigner le Chef d'équipe suivant avant la Signature 1."))
+                raise ValidationError(_("Veuillez renseigner l'Opérateur Polyvalant suivant avant la Signature 1."))
             rec.with_context(ar_checklist_workflow_write=True).write({
                 "workflow_state": "signature_2",
                 "signature_1_user_id": self.env.user.id,
@@ -307,10 +418,85 @@ class ArChecklist(models.Model):
             if rec.workflow_state != "signature_2" or rec.signature_2_user_id:
                 continue
             if rec.next_chef_id != self.env.user:
-                raise ValidationError(_("Seul le Chef d'équipe suivant peut valider la Signature 2."))
+                raise ValidationError(_("Seul l'Opérateur Polyvalant suivant peut valider la Signature 2."))
             rec.with_context(ar_checklist_workflow_write=True).write({
                 "signature_2_user_id": self.env.user.id,
                 "signature_2_date": fields.Datetime.now(),
+                "workflow_state": "archive",
+                "active": False,
+            })
+        return True
+
+    def action_open_disagreement_wizard(self):
+        self.ensure_one()
+        if self.workflow_state != "signature_2":
+            raise ValidationError(_("Le bouton Non d'accord est disponible uniquement en Signature 2."))
+        if self.next_chef_id != self.env.user:
+            raise ValidationError(_("Seul l'Opérateur Polyvalant suivant peut déclarer Non d'accord."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Non d'accord"),
+            "res_model": "ar.checklist.disagreement.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_checklist_id": self.id},
+        }
+
+    def action_confirm_disagreement(self, motif):
+        for rec in self:
+            if rec.workflow_state != "signature_2":
+                raise ValidationError(_("La check-list doit être en Signature 2."))
+            if rec.next_chef_id != self.env.user:
+                raise ValidationError(_("Seul l'Opérateur Polyvalant suivant peut déclarer Non d'accord."))
+            supervisor = rec._get_supervisor_user()
+            if not supervisor:
+                raise ValidationError(_("Aucun superviseur trouvé. Veuillez renseigner un manager RH pour le demandeur ou l'Opérateur Polyvalant suivant."))
+            rec.with_context(ar_checklist_workflow_write=True).write({
+                "workflow_state": "superviseur",
+                "supervisor_id": supervisor.id,
+                "disagreement_motif": motif,
+                "disagreement_user_id": self.env.user.id,
+                "disagreement_date": fields.Datetime.now(),
+            })
+        return True
+
+    def action_open_supervisor_decision_wizard(self):
+        self.ensure_one()
+        decision = self.env.context.get("supervisor_decision")
+        if decision not in ("validated", "refused"):
+            raise ValidationError(_("Décision superviseur invalide."))
+        if self.workflow_state != "superviseur":
+            raise ValidationError(_("Cette action est disponible uniquement à l'état superviseur."))
+        if self.supervisor_id != self.env.user:
+            raise ValidationError(_("Seul le superviseur peut valider ou refuser cette check-list."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Validation superviseur") if decision == "validated" else _("Refus superviseur"),
+            "res_model": "ar.checklist.supervisor.decision.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_checklist_id": self.id,
+                "default_decision": decision,
+            },
+        }
+
+    def action_confirm_supervisor_decision(self, decision, motif=False):
+        for rec in self:
+            if rec.workflow_state != "superviseur":
+                raise ValidationError(_("La check-list doit être à l'état superviseur."))
+            if rec.supervisor_id != self.env.user:
+                raise ValidationError(_("Seul le superviseur peut valider ou refuser cette check-list."))
+            if decision not in ("validated", "refused"):
+                raise ValidationError(_("Décision superviseur invalide."))
+            if decision == "refused" and not (motif or "").strip():
+                raise ValidationError(_("Veuillez renseigner le motif du refus superviseur."))
+            rec.with_context(ar_checklist_workflow_write=True).write({
+                "workflow_state": "archive",
+                "supervisor_decision": decision,
+                "supervisor_motif": motif,
+                "supervisor_decision_user_id": self.env.user.id,
+                "supervisor_decision_date": fields.Datetime.now(),
                 "active": False,
             })
         return True
@@ -332,6 +518,7 @@ class ArChecklistLine(models.Model):
             ("att_exp_manuf", "Attente Expédition Manuf"),
             ("att_exp_trad", "Attente Expédition Trad"),
             ("alim_tri", "Alimentation Tri"),
+            ("dechargement", "Déchargement"),
         ],
         required=True,
     )
@@ -353,16 +540,16 @@ class ArChecklistLine(models.Model):
             line.dossier_date_from = date_from
             line.dossier_date_to = date_to
     def _check_signature_editable(self):
-        if any(line.checklist_id.workflow_state == "signature_2" for line in self):
-            raise ValidationError(_("Cette check-list est en Signature 2. Elle n'est plus modifiable."))
+        if any(line.checklist_id.workflow_state in ("signature_2", "superviseur") for line in self):
+            raise ValidationError(_("Cette check-list est en validation. Elle n'est plus modifiable."))
 
     @api.model_create_multi
     def create(self, vals_list):
         checklist_ids = [vals.get("checklist_id") for vals in vals_list if vals.get("checklist_id")]
         if checklist_ids:
-            locked_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: rec.workflow_state == "signature_2")
+            locked_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: rec.workflow_state in ("signature_2", "superviseur"))
             if locked_checklists:
-                raise ValidationError(_("Cette check-list est en Signature 2. Elle n'est plus modifiable."))
+                raise ValidationError(_("Cette check-list est en validation. Elle n'est plus modifiable."))
         if checklist_ids:
             archived_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: not rec.active)
             if archived_checklists:
@@ -396,8 +583,8 @@ class ArChecklistEquipmentLine(models.Model):
     comment = fields.Text(string="Commentaire")
 
     def _check_signature_editable(self):
-        if any(line.checklist_id.workflow_state == "signature_2" for line in self):
-            raise ValidationError(_("Cette check-list est en Signature 2. Elle n'est plus modifiable."))
+        if any(line.checklist_id.workflow_state in ("signature_2", "superviseur") for line in self):
+            raise ValidationError(_("Cette check-list est en validation. Elle n'est plus modifiable."))
 
     def _check_required_comment(self):
         missing_comment = self.filtered(lambda line: line.state in ("nok", "abs") and not (line.comment or "").strip())
@@ -409,9 +596,9 @@ class ArChecklistEquipmentLine(models.Model):
     def create(self, vals_list):
         checklist_ids = [vals.get("checklist_id") for vals in vals_list if vals.get("checklist_id")]
         if checklist_ids:
-            locked_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: rec.workflow_state == "signature_2")
+            locked_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: rec.workflow_state in ("signature_2", "superviseur"))
             if locked_checklists:
-                raise ValidationError(_("Cette check-list est en Signature 2. Elle n'est plus modifiable."))
+                raise ValidationError(_("Cette check-list est en validation. Elle n'est plus modifiable."))
         if checklist_ids:
             archived_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: not rec.active)
             if archived_checklists:
@@ -451,35 +638,103 @@ class ArChecklistEquipmentLine(models.Model):
         return super().unlink()
 
 
+class ArChecklistZoneLine(models.Model):
+    _name = "ar.checklist.zone.line"
+    _description = "État zone Check-list"
+    _order = "sequence, id"
+
+    checklist_id = fields.Many2one("ar.checklist", string="Checklist", required=True, ondelete="cascade")
+    zone_id = fields.Many2one("ar.checklist.zone", string="Zone", required=True, ondelete="restrict")
+    sequence = fields.Integer(related="zone_id.sequence", store=True)
+    state = fields.Selection([("ok", "OK"), ("nok", "NOK"), ("abs", "ABS")], string="État")
+    comment = fields.Text(string="Commentaire")
+
+    def _check_signature_editable(self):
+        if any(line.checklist_id.workflow_state in ("signature_2", "superviseur") for line in self):
+            raise ValidationError(_("Cette check-list est en validation. Elle n'est plus modifiable."))
+
+    def _check_required_comment(self):
+        missing_comment = self.filtered(lambda line: line.state in ("nok", "abs") and not (line.comment or "").strip())
+        if missing_comment:
+            names = ", ".join(missing_comment.mapped("zone_id.name"))
+            raise ValidationError(_("Veuillez renseigner un commentaire pour les zones NOK ou ABS : %s") % names)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        checklist_ids = [vals.get("checklist_id") for vals in vals_list if vals.get("checklist_id")]
+        if checklist_ids:
+            locked_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: rec.workflow_state in ("signature_2", "superviseur"))
+            if locked_checklists:
+                raise ValidationError(_("Cette check-list est en validation. Elle n'est plus modifiable."))
+        if checklist_ids:
+            archived_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: not rec.active)
+            if archived_checklists:
+                raise ValidationError(_("Cette check-list est archivée. Vous devez la désarchiver avant de la modifier."))
+        records = super().create(vals_list)
+        records._check_required_comment()
+        return records
+
+    def write(self, vals):
+        if vals and any(not line.checklist_id.active for line in self):
+            raise ValidationError(_("Cette check-list est archivée. Vous devez la désarchiver avant de la modifier."))
+        if vals:
+            self._check_signature_editable()
+        if "zone_id" in vals:
+            raise ValidationError(_("Vous pouvez modifier uniquement l'état des zones."))
+        result = super().write(vals)
+        self._check_required_comment()
+        return result
+
+    def unlink(self):
+        self._check_signature_editable()
+        if any(not line.checklist_id.active for line in self):
+            raise ValidationError(_("Cette check-list est archivée. Vous devez la désarchiver avant de la modifier."))
+        return super().unlink()
+
+
 class ArChecklistOperatorLine(models.Model):
     _name = "ar.checklist.operator.line"
     _description = "Présence opérateur Check-list de passation"
     _order = "id"
 
     checklist_id = fields.Many2one("ar.checklist", string="Checklist", required=True, ondelete="cascade")
+    employee_id = fields.Many2one("hr.employee", string="Opérateur")
     operator_id = fields.Many2one("res.users", string="Utilisateur opérateur")
     operator_name = fields.Char(string="Opérateur", compute="_compute_operator_name", store=True, readonly=False)
     present = fields.Boolean(string="Présence", default=True)
     def _check_signature_editable(self):
-        if any(line.checklist_id.workflow_state == "signature_2" for line in self):
-            raise ValidationError(_("Cette check-list est en Signature 2. Elle n'est plus modifiable."))
+        if any(line.checklist_id.workflow_state in ("signature_2", "superviseur") for line in self):
+            raise ValidationError(_("Cette check-list est en validation. Elle n'est plus modifiable."))
 
-    @api.depends("operator_id")
+    @api.depends("employee_id", "operator_id")
     def _compute_operator_name(self):
         for line in self:
-            if not line.operator_name:
+            if line.employee_id:
+                line.operator_name = line.employee_id.name or ""
+            elif not line.operator_name:
                 line.operator_name = line.operator_id.name or ""
+
+    @api.onchange("employee_id")
+    def _onchange_employee_id(self):
+        for line in self:
+            if line.employee_id:
+                line.operator_id = line.employee_id.user_id
+                line.operator_name = line.employee_id.name
 
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if not vals.get("operator_id") and not vals.get("operator_name"):
-                raise ValidationError(_("Les opérateurs affectés sont générés automatiquement depuis le paramétrage. Vous ne pouvez pas ajouter une ligne vide."))
+            if vals.get("employee_id"):
+                employee = self.env["hr.employee"].sudo().browse(vals["employee_id"])
+                vals.setdefault("operator_id", employee.user_id.id or False)
+                vals.setdefault("operator_name", employee.name)
+            if not vals.get("employee_id") and not vals.get("operator_id") and not vals.get("operator_name"):
+                raise ValidationError(_("Veuillez sélectionner un opérateur."))
         checklist_ids = [vals.get("checklist_id") for vals in vals_list if vals.get("checklist_id")]
         if checklist_ids:
-            locked_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: rec.workflow_state == "signature_2")
+            locked_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: rec.workflow_state in ("signature_2", "superviseur"))
             if locked_checklists:
-                raise ValidationError(_("Cette check-list est en Signature 2. Elle n'est plus modifiable."))
+                raise ValidationError(_("Cette check-list est en validation. Elle n'est plus modifiable."))
         if checklist_ids:
             archived_checklists = self.env["ar.checklist"].browse(checklist_ids).filtered(lambda rec: not rec.active)
             if archived_checklists:
@@ -491,8 +746,10 @@ class ArChecklistOperatorLine(models.Model):
             raise ValidationError(_("Cette check-list est archivée. Vous devez la désarchiver avant de la modifier."))
         if vals:
             self._check_signature_editable()
-        if "operator_id" in vals or "operator_name" in vals:
-            raise ValidationError(_("Vous pouvez modifier uniquement la présence des opérateurs."))
+        if vals.get("employee_id"):
+            employee = self.env["hr.employee"].sudo().browse(vals["employee_id"])
+            vals.setdefault("operator_id", employee.user_id.id or False)
+            vals.setdefault("operator_name", employee.name)
         return super().write(vals)
 
     def unlink(self):
@@ -500,3 +757,4 @@ class ArChecklistOperatorLine(models.Model):
         if any(not line.checklist_id.active for line in self):
             raise ValidationError(_("Cette check-list est archivée. Vous devez la désarchiver avant de la modifier."))
         return super().unlink()
+

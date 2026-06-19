@@ -19,8 +19,8 @@ class ArEquipmentCardsField extends Component {
         return this.props.record.data[this.props.name]?.records || [];
     }
 
-    equipmentName(record) {
-        const value = record.data.equipment_id;
+    itemName(record) {
+        const value = record.data.equipment_id || record.data.zone_id;
         if (Array.isArray(value)) {
             return value[1] || "";
         }

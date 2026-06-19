@@ -37,6 +37,30 @@
         background: #15803d !important;
     }
 
+    .ar_checklist_btn_supervisor_validate {
+        border-color: #15803d !important;
+        background: #16a34a !important;
+        color: #fff !important;
+        font-weight: 700;
+    }
+
+    .ar_checklist_btn_supervisor_validate:hover {
+        border-color: #166534 !important;
+        background: #15803d !important;
+    }
+
+    .ar_checklist_btn_supervisor_refuse {
+        border-color: #b91c1c !important;
+        background: #dc2626 !important;
+        color: #fff !important;
+        font-weight: 700;
+    }
+
+    .ar_checklist_btn_supervisor_refuse:hover {
+        border-color: #991b1b !important;
+        background: #b91c1c !important;
+    }
+
     .ar_checklist_btn_archive {
         border-color: #d97706 !important;
         background: #f59e0b !important;
@@ -207,7 +231,7 @@
     }
 
     .ar_checklist_extra_sections {
-        grid-template-columns: repeat(3, minmax(280px, 1fr));
+        grid-template-columns: repeat(4, minmax(260px, 1fr));
     }
 
     .ar_checklist_extra_sections > .ar_checklist_subsection {
@@ -221,6 +245,43 @@
 
     .ar_checklist_comment_box {
         min-height: 118px;
+    }
+
+    .ar_checklist_comment_area {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+        gap: 18px;
+        align-items: stretch;
+    }
+
+    .ar_checklist_attachment_box {
+        min-height: 118px;
+    }
+
+    .ar_checklist_motif_area {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+        margin-bottom: 18px;
+    }
+
+    .ar_checklist_motif_area .ar_checklist_disagreement_box {
+        min-height: 98px;
+    }
+
+    .ar_checklist_disagreement_box .o_field_widget,
+    .ar_checklist_disagreement_box .o_field_text,
+    .ar_checklist_disagreement_box textarea,
+    .ar_checklist_disagreement_box .o_readonly_modifier,
+    .ar_checklist_disagreement_box .o_field_widget > span {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        line-height: 1.5;
     }
 
     .ar_checklist_comment_box .o_field_widget,
@@ -272,7 +333,7 @@
 
     .ar_checklist_small_metrics {
         display: grid;
-        grid-template-columns: repeat(3, 180px);
+        grid-template-columns: repeat(4, 180px);
         gap: 16px;
         align-items: start;
         margin-top: 18px;
@@ -301,6 +362,10 @@
         margin-bottom: 18px;
         padding: 14px 16px 18px;
         background: #fbfcfd;
+    }
+
+    .ar_checklist_zone_title {
+        margin-top: 18px;
     }
 
     .ar_checklist_equipment_area .o_field_widget {
@@ -556,12 +621,14 @@
             padding: 14px;
         }
 
-        .ar_checklist_top,
-        .ar_checklist_sections,
-        .ar_checklist_section_grid,
-        .ar_checklist_extra_sections {
-            grid-template-columns: 1fr;
-        }
+         .ar_checklist_top,
+         .ar_checklist_sections,
+         .ar_checklist_section_grid,
+         .ar_checklist_extra_sections,
+         .ar_checklist_comment_area,
+         .ar_checklist_motif_area {
+             grid-template-columns: 1fr;
+         }
 
         .ar_checklist_small_metrics {
             grid-template-columns: 1fr;
@@ -702,5 +769,233 @@
         color: #16212c;
         font-size: 13px;
         white-space: nowrap;
+    }
+}
+
+.o_form_view.ar_disagreement_wizard {
+    --ar-refuse: #b91c1c;
+    --ar-refuse-soft: #fff1f2;
+    --ar-refuse-border: #fecdd3;
+    --ar-wizard-border: #d9e1e8;
+    --ar-wizard-text: #172033;
+    --ar-wizard-muted: #64748b;
+
+    .o_form_sheet_bg,
+    .o_form_sheet {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .ar_disagreement_wizard_header {
+        margin: 0 0 16px;
+        padding: 18px 20px;
+        border: 1px solid var(--ar-refuse-border);
+        border-radius: 8px;
+        background:
+            linear-gradient(135deg, rgba(255, 241, 242, 0.98), rgba(255, 255, 255, 0.96)),
+            #ffffff;
+    }
+
+    .ar_disagreement_wizard_badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        margin-bottom: 10px;
+        padding: 3px 11px;
+        border: 1px solid rgba(185, 28, 28, 0.18);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--ar-refuse);
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0;
+    }
+
+    .ar_disagreement_wizard_header h2 {
+        margin: 0;
+        color: var(--ar-wizard-text);
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 0;
+    }
+
+    .ar_disagreement_wizard_header p {
+        max-width: 560px;
+        margin: 8px 0 0;
+        color: var(--ar-wizard-muted);
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .ar_disagreement_wizard_body {
+        margin: 0;
+        padding: 16px;
+        border: 1px solid var(--ar-wizard-border);
+        border-radius: 8px;
+        background: #fbfcfd;
+    }
+
+    .ar_disagreement_wizard_body .o_wrap_label {
+        padding-top: 0;
+        color: var(--ar-wizard-text);
+        font-weight: 800;
+    }
+
+    .ar_disagreement_wizard_body textarea {
+        min-height: 120px;
+        border-radius: 7px;
+        border-color: #dbe3ea;
+        background: #ffffff;
+        line-height: 1.5;
+        resize: vertical;
+    }
+
+    .ar_disagreement_wizard_body textarea:focus {
+        border-color: var(--ar-refuse);
+        box-shadow: 0 0 0 2px rgba(185, 28, 28, 0.12);
+    }
+
+    footer .btn-danger {
+        border-color: var(--ar-refuse) !important;
+        background: var(--ar-refuse) !important;
+        color: #fff !important;
+        font-weight: 700;
+    }
+
+    footer .btn-danger:hover {
+        border-color: #991b1b !important;
+        background: #991b1b !important;
+    }
+}
+
+.o_form_view.ar_supervisor_decision_wizard {
+    --ar-validate: #15803d;
+    --ar-validate-soft: #ecfdf3;
+    --ar-validate-border: #bbf7d0;
+    --ar-refuse: #b91c1c;
+    --ar-refuse-soft: #fff1f2;
+    --ar-refuse-border: #fecdd3;
+    --ar-wizard-border: #d9e1e8;
+    --ar-wizard-text: #172033;
+    --ar-wizard-muted: #64748b;
+
+    .o_form_sheet_bg,
+    .o_form_sheet {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .ar_supervisor_wizard_header {
+        margin: 0 0 16px;
+        padding: 18px 20px;
+        border: 1px solid var(--ar-validate-border);
+        border-radius: 8px;
+        background:
+            linear-gradient(135deg, rgba(236, 253, 243, 0.98), rgba(255, 255, 255, 0.96)),
+            #ffffff;
+    }
+
+    .ar_supervisor_wizard_header_refuse {
+        border-color: var(--ar-refuse-border);
+        background:
+            linear-gradient(135deg, rgba(255, 241, 242, 0.98), rgba(255, 255, 255, 0.96)),
+            #ffffff;
+    }
+
+    .ar_supervisor_wizard_badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        margin-bottom: 10px;
+        padding: 3px 11px;
+        border-radius: 999px;
+        background: #fff;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0;
+    }
+
+    .ar_supervisor_wizard_badge_validate {
+        border: 1px solid rgba(21, 128, 61, 0.18);
+        color: var(--ar-validate);
+    }
+
+    .ar_supervisor_wizard_badge_refuse {
+        border: 1px solid rgba(185, 28, 28, 0.18);
+        color: var(--ar-refuse);
+    }
+
+    .ar_supervisor_wizard_header h2 {
+        margin: 0;
+        color: var(--ar-wizard-text);
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 0;
+    }
+
+    .ar_supervisor_wizard_header p {
+        max-width: 620px;
+        margin: 8px 0 0;
+        color: var(--ar-wizard-muted);
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .ar_supervisor_wizard_body {
+        margin: 0;
+        padding: 16px;
+        border: 1px solid var(--ar-wizard-border);
+        border-radius: 8px;
+        background: #fbfcfd;
+    }
+
+    .ar_supervisor_wizard_body .o_wrap_label {
+        padding-top: 0;
+        color: var(--ar-wizard-text);
+        font-weight: 800;
+    }
+
+    .ar_supervisor_wizard_body textarea {
+        min-height: 100px;
+        border-radius: 7px;
+        border-color: #dbe3ea;
+        background: #ffffff;
+        line-height: 1.5;
+        resize: vertical;
+    }
+
+    .ar_supervisor_wizard_body textarea:focus {
+        border-color: #0f766e;
+        box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.12);
+    }
+
+    footer .btn-success {
+        border-color: var(--ar-validate) !important;
+        background: var(--ar-validate) !important;
+        color: #fff !important;
+        font-weight: 700;
+    }
+
+    footer .btn-success:hover {
+        border-color: #166534 !important;
+        background: #166534 !important;
+    }
+
+    footer .btn-danger {
+        border-color: var(--ar-refuse) !important;
+        background: var(--ar-refuse) !important;
+        color: #fff !important;
+        font-weight: 700;
+    }
+
+    footer .btn-danger:hover {
+        border-color: #991b1b !important;
+        background: #991b1b !important;
     }
 }

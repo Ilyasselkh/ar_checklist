@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <menuitem id="menu_ar_checklist_root"
-              name="AR Check-list de passation de changement d'équipe"
+              name="AR Check-list de passation"
               action="action_ar_checklist"
               sequence="12"
               groups="base.group_user"/>
@@ -37,4 +37,12 @@
               sequence="10"
               groups="ar_checklist.group_ar_checklist_param"/>
 
+    <menuitem id="menu_ar_checklist_zones"
+              name="Zones"
+              parent="menu_ar_checklist_parametrage"
+              action="action_ar_checklist_zone"
+              sequence="20"
+              groups="ar_checklist.group_ar_checklist_param"/>
+
 </odoo>
+
