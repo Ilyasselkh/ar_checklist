@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="view_ar_checklist_list" model="ir.ui.view">
         <field name="name">ar.checklist.list</field>
@@ -313,7 +313,7 @@
                             <field name="nb_emp_vides_fg" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
                         </div>
                         <div class="ar_checklist_small_box">
-                            <div class="ar_checklist_small_title">Nb de Test</div>
+                            <div class="ar_checklist_small_title">Nb de palettes réceptionnées</div>
                             <field name="nb_test" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
                         </div>
                     </div>
@@ -389,4 +389,6 @@
         <field name="search_view_id" ref="view_ar_checklist_search"/>
     </record>
 </odoo>
+
+
 

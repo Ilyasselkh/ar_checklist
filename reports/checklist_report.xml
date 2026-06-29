@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="paperformat_ar_checklist" model="report.paperformat">
         <field name="name">Check-list de passation - Landscape</field>
@@ -432,7 +432,7 @@
                                             <tr t-if="o.nb_palettes_sol"><td class="ar_chk_label">Nb Palettes Sol</td><td><span t-field="o.nb_palettes_sol"/></td></tr>
                                             <tr t-if="o.nb_palettes_rci"><td class="ar_chk_label">Nb Palettes RCI</td><td><span t-field="o.nb_palettes_rci"/></td></tr>
                                             <tr t-if="o.nb_emp_vides_fg"><td class="ar_chk_label">Nb Emp Vides FG</td><td><span t-field="o.nb_emp_vides_fg"/></td></tr>
-                                            <tr t-if="o.nb_test"><td class="ar_chk_label">Nb de Test</td><td><span t-field="o.nb_test"/></td></tr>
+                                            <tr t-if="o.nb_test"><td class="ar_chk_label">Nb de palettes réceptionnées</td><td><span t-field="o.nb_test"/></td></tr>
                                         </table>
                                     </div>
                                     <div class="ar_chk_box" t-if="(o.disagreement_motif or '').strip()" style="margin-top: 8px;">
@@ -541,4 +541,6 @@
         </t>
     </template>
 </odoo>
+
+
 

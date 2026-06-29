@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+﻿from datetime import datetime, timedelta
 
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
@@ -29,9 +29,9 @@ class ArChecklist(models.Model):
     date_display = fields.Char(string="Date", compute="_compute_date_display")
     equipe = fields.Selection(
         [
-            ("shift_1", "Shift 1"),
-            ("shift_2", "Shift 2"),
-            ("shift_3", "Shift 3"),
+            ("shift_1", "Equipe 1 (B)"),
+            ("shift_2", "Equipe 2 (C)"),
+            ("shift_3", "Equipe 3 (A)"),
         ],
         string="Équipe",
         required=True,
@@ -153,7 +153,7 @@ class ArChecklist(models.Model):
     nb_palettes_sol = fields.Integer(string="Nb Palettes Sol", tracking=True)
     nb_palettes_rci = fields.Integer(string="Nb Palettes RCI", tracking=True)
     nb_emp_vides_fg = fields.Integer(string="Nb Emp Vides FG", tracking=True)
-    nb_test = fields.Integer(string="Nb de Test", tracking=True)
+    nb_test = fields.Integer(string="Nb de palettes réceptionnées", tracking=True)
     observations = fields.Text(string="Commentaire général", tracking=True)
     attachment_ids = fields.Many2many(
         "ir.attachment",
@@ -757,4 +757,7 @@ class ArChecklistOperatorLine(models.Model):
         if any(not line.checklist_id.active for line in self):
             raise ValidationError(_("Cette check-list est archivée. Vous devez la désarchiver avant de la modifier."))
         return super().unlink()
+
+
+
 
