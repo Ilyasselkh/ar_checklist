@@ -238,6 +238,10 @@
         min-height: 320px;
     }
 
+    .ar_checklist_extra_sections > .ar_checklist_prolongement_section {
+        grid-column: span 2;
+    }
+
     .ar_checklist_comment_box textarea {
         min-height: 150px;
         border-radius: 6px;
@@ -338,6 +342,18 @@
         align-items: start;
         margin-top: 18px;
         margin-bottom: 18px;
+    }
+
+    .ar_checklist_extra_sections > .ar_checklist_small_metrics_inline {
+        grid-column: span 2;
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+        align-self: stretch;
+        margin: 0;
+    }
+
+    .ar_checklist_small_metrics_inline .ar_checklist_small_box {
+        min-height: 0;
+        padding: 14px;
     }
 
     .ar_checklist_small_box {
@@ -613,6 +629,15 @@
         .ar_checklist_equipment_area .ar_equipment_cards_widget {
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         }
+
+        .ar_checklist_extra_sections > .ar_checklist_small_metrics_inline,
+        .ar_checklist_extra_sections > .ar_checklist_prolongement_section {
+            grid-column: auto;
+        }
+
+        .ar_checklist_extra_sections > .ar_checklist_small_metrics_inline {
+            grid-template-columns: repeat(2, minmax(180px, 1fr));
+        }
     }
 
     @media (max-width: 900px) {
@@ -633,6 +658,10 @@
         .ar_checklist_small_metrics {
             grid-template-columns: 1fr;
             gap: 12px;
+        }
+
+        .ar_checklist_extra_sections > .ar_checklist_small_metrics_inline {
+            grid-template-columns: 1fr;
         }
 
         .ar_checklist_equipment_area .ar_equipment_cards_widget {

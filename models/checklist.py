@@ -139,6 +139,13 @@ class ArChecklist(models.Model):
         domain=[("section", "=", "dechargement")],
         context={"default_section": "dechargement"},
     )
+    prolongement_line_ids = fields.One2many(
+        "ar.checklist.line",
+        "checklist_id",
+        string="Prolongement",
+        domain=[("section", "=", "prolongement")],
+        context={"default_section": "prolongement"},
+    )
     line_ids = fields.One2many("ar.checklist.line", "checklist_id", string="Toutes les lignes")
 
     total_prep_manuf = fields.Float(string="TOTAL PREP MANUF", compute="_compute_totals", store=True)
@@ -149,6 +156,7 @@ class ArChecklist(models.Model):
     total_att_exp_trad = fields.Float(string="TOTAL Att Exp Trad", compute="_compute_totals", store=True)
     total_alim_tri = fields.Float(string="TOTAL Alim Tri", compute="_compute_totals", store=True)
     total_dechargement = fields.Float(string="TOTAL Déchargement", compute="_compute_totals", store=True)
+    total_prolongement = fields.Float(string="TOTAL Prolongement", compute="_compute_totals", store=True)
 
     nb_palettes_sol = fields.Integer(string="Nb Palettes Sol", tracking=True)
     nb_palettes_rci = fields.Integer(string="Nb Palettes RCI", tracking=True)
@@ -238,6 +246,7 @@ class ArChecklist(models.Model):
         "att_exp_trad_line_ids.quantity",
         "alim_tri_line_ids.quantity",
         "dechargement_line_ids.quantity",
+        "prolongement_line_ids.quantity",
     )
     def _compute_totals(self):
         for rec in self:
@@ -249,6 +258,7 @@ class ArChecklist(models.Model):
             rec.total_att_exp_trad = sum(rec.att_exp_trad_line_ids.mapped("quantity"))
             rec.total_alim_tri = sum(rec.alim_tri_line_ids.mapped("quantity"))
             rec.total_dechargement = sum(rec.dechargement_line_ids.mapped("quantity"))
+            rec.total_prolongement = sum(rec.prolongement_line_ids.mapped("quantity"))
 
     @api.onchange(
         "prep_manuf_line_ids",
@@ -267,6 +277,8 @@ class ArChecklist(models.Model):
         "alim_tri_line_ids.quantity",
         "dechargement_line_ids",
         "dechargement_line_ids.quantity",
+        "prolongement_line_ids",
+        "prolongement_line_ids.quantity",
     )
     def _onchange_totals(self):
         self._compute_totals()
@@ -519,6 +531,7 @@ class ArChecklistLine(models.Model):
             ("att_exp_trad", "Attente Expédition Trad"),
             ("alim_tri", "Alimentation Tri"),
             ("dechargement", "Déchargement"),
+            ("prolongement", "Prolongement"),
         ],
         required=True,
     )
@@ -528,6 +541,7 @@ class ArChecklistLine(models.Model):
         context={"ar_checklist_reference_display": True},
     )
     reference = fields.Char(string="Référence")
+    of = fields.Char(string="OF")
     quantity = fields.Float(string="Nb de palettes")
     dossier_date_from = fields.Datetime(compute="_compute_dossier_date_window")
     dossier_date_to = fields.Datetime(compute="_compute_dossier_date_window")

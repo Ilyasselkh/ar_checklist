@@ -40,6 +40,7 @@
                 <field name="total_att_exp_trad"/>
                 <field name="total_alim_tri"/>
                 <field name="total_dechargement"/>
+                <field name="total_prolongement"/>
                 <templates>
                     <t t-name="card">
                         <div class="oe_kanban_global_click oe_kanban_card ar_checklist_card">
@@ -83,6 +84,10 @@
                                 <div>
                                     <span class="ar_card_label">Déchargement</span>
                                     <strong><field name="total_dechargement"/></strong>
+                                </div>
+                                <div>
+                                    <span class="ar_card_label">Prolongement</span>
+                                    <strong><field name="total_prolongement"/></strong>
                                 </div>
                             </div>
                         </div>
@@ -285,6 +290,41 @@
                                     <field name="total_dechargement" nolabel="1" readonly="1"/>
                                 </div>
                             </div>
+
+                            <div class="ar_checklist_subsection ar_checklist_prolongement_section">
+                                <div class="ar_checklist_subsection_title">Prolongement</div>
+                                <field name="prolongement_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'prolongement'}">
+                                    <list editable="bottom">
+                                        <field name="section" column_invisible="1"/>
+                                        <field name="reference" string="Référence"/>
+                                        <field name="of" string="OF"/>
+                                        <field name="quantity" string="Carton/Qte"/>
+                                    </list>
+                                </field>
+                                <div class="ar_checklist_total_line">
+                                    <span>TOTAL Prolongement</span>
+                                    <field name="total_prolongement" nolabel="1" readonly="1"/>
+                                </div>
+                            </div>
+
+                            <div class="ar_checklist_small_metrics ar_checklist_small_metrics_inline">
+                                <div class="ar_checklist_small_box">
+                                    <div class="ar_checklist_small_title">Nb Palettes Sol</div>
+                                    <field name="nb_palettes_sol" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
+                                </div>
+                                <div class="ar_checklist_small_box">
+                                    <div class="ar_checklist_small_title">Nb Palettes RCI</div>
+                                    <field name="nb_palettes_rci" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
+                                </div>
+                                <div class="ar_checklist_small_box">
+                                    <div class="ar_checklist_small_title">Nb Emp Vides FG</div>
+                                    <field name="nb_emp_vides_fg" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
+                                </div>
+                                <div class="ar_checklist_small_box">
+                                    <div class="ar_checklist_small_title">Nb de palettes réceptionnées</div>
+                                    <field name="nb_test" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="ar_checklist_comment_area">
@@ -296,25 +336,6 @@
                                 <div class="ar_checklist_subsection_title">Photo &amp; Pièces jointes</div>
                                 <field name="attachment_ids" widget="many2many_binary" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="ar_checklist_small_metrics">
-                        <div class="ar_checklist_small_box">
-                            <div class="ar_checklist_small_title">Nb Palettes Sol</div>
-                            <field name="nb_palettes_sol" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
-                        </div>
-                        <div class="ar_checklist_small_box">
-                            <div class="ar_checklist_small_title">Nb Palettes RCI</div>
-                            <field name="nb_palettes_rci" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
-                        </div>
-                        <div class="ar_checklist_small_box">
-                            <div class="ar_checklist_small_title">Nb Emp Vides FG</div>
-                            <field name="nb_emp_vides_fg" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
-                        </div>
-                        <div class="ar_checklist_small_box">
-                            <div class="ar_checklist_small_title">Nb de palettes réceptionnées</div>
-                            <field name="nb_test" nolabel="1" readonly="not active or workflow_state != 'signature_1'"/>
                         </div>
                     </div>
 
@@ -389,6 +410,7 @@
         <field name="search_view_id" ref="view_ar_checklist_search"/>
     </record>
 </odoo>
+
 
 
 

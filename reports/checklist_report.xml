@@ -355,10 +355,10 @@
                             </tr>
                         </table>
 
-                        <div class="ar_chk_section_heading" t-if="o.att_exp_manuf_line_ids or o.att_exp_trad_line_ids or o.alim_tri_line_ids or o.dechargement_line_ids">Attentes, alimentation et déchargement</div>
-                        <table class="ar_chk_grid ar_chk_three" t-if="o.att_exp_manuf_line_ids or o.att_exp_trad_line_ids or o.alim_tri_line_ids or o.dechargement_line_ids">
+                        <div class="ar_chk_section_heading" t-if="o.att_exp_manuf_line_ids or o.att_exp_trad_line_ids or o.alim_tri_line_ids or o.dechargement_line_ids or o.prolongement_line_ids">Attentes, alimentation, déchargement et prolongement</div>
+                        <table class="ar_chk_grid ar_chk_three" t-if="o.att_exp_manuf_line_ids or o.att_exp_trad_line_ids or o.alim_tri_line_ids or o.dechargement_line_ids or o.prolongement_line_ids">
                             <tr>
-                                <td style="width: 25%;" t-if="o.att_exp_manuf_line_ids">
+                                <td style="width: 20%;" t-if="o.att_exp_manuf_line_ids">
                                     <div class="ar_chk_box">
                                         <h3>Attente Expédition Manuf</h3>
                                         <table class="ar_chk_table">
@@ -373,7 +373,7 @@
                                         <div class="ar_chk_total">TOTAL: <span t-field="o.total_att_exp_manuf"/></div>
                                     </div>
                                 </td>
-                                <td style="width: 25%;" t-if="o.att_exp_trad_line_ids">
+                                <td style="width: 20%;" t-if="o.att_exp_trad_line_ids">
                                     <div class="ar_chk_box">
                                         <h3>Attente Expédition Trad</h3>
                                         <table class="ar_chk_table">
@@ -388,7 +388,7 @@
                                         <div class="ar_chk_total">TOTAL: <span t-field="o.total_att_exp_trad"/></div>
                                     </div>
                                 </td>
-                                <td style="width: 25%;" t-if="o.alim_tri_line_ids">
+                                <td style="width: 20%;" t-if="o.alim_tri_line_ids">
                                     <div class="ar_chk_box">
                                         <h3>Alimentation Tri</h3>
                                         <table class="ar_chk_table">
@@ -403,7 +403,7 @@
                                         <div class="ar_chk_total">TOTAL: <span t-field="o.total_alim_tri"/></div>
                                     </div>
                                 </td>
-                                <td style="width: 25%;" t-if="o.dechargement_line_ids">
+                                <td style="width: 20%;" t-if="o.dechargement_line_ids">
                                     <div class="ar_chk_box">
                                         <h3>Déchargement</h3>
                                         <table class="ar_chk_table">
@@ -416,6 +416,22 @@
                                             </tbody>
                                         </table>
                                         <div class="ar_chk_total">TOTAL: <span t-field="o.total_dechargement"/></div>
+                                    </div>
+                                </td>
+                                <td style="width: 20%;" t-if="o.prolongement_line_ids">
+                                    <div class="ar_chk_box">
+                                        <h3>Prolongement</h3>
+                                        <table class="ar_chk_table">
+                                            <thead><tr><th>Référence</th><th>OF</th><th class="ar_chk_num">Carton/Qte</th></tr></thead>
+                                            <tbody>
+                                                <tr t-foreach="o.prolongement_line_ids" t-as="line">
+                                                    <td><span t-esc="line.reference or ''"/></td>
+                                                    <td><span t-esc="line.of or ''"/></td>
+                                                    <td class="ar_chk_num"><span t-field="line.quantity"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="ar_chk_total">TOTAL: <span t-field="o.total_prolongement"/></div>
                                     </div>
                                 </td>
                             </tr>
