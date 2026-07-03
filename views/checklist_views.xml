@@ -1,5 +1,63 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="view_ar_checklist_kadouane_dossier_list" model="ir.ui.view">
+        <field name="name">ar.checklist.kadouane.dossier.list</field>
+        <field name="model">ar.checklist.kadouane.dossier</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="referenceID" string="N° dossier"/>
+                <field name="source_model" string="Type"/>
+                <field name="client_name" string="Client"/>
+                <field name="supplier_name" string="Fournisseur"/>
+                <field name="state" string="État"/>
+                <field name="create_date" string="Date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ar_checklist_kadouane_dossier_search" model="ir.ui.view">
+        <field name="name">ar.checklist.kadouane.dossier.search</field>
+        <field name="model">ar.checklist.kadouane.dossier</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="referenceID" string="N° dossier"/>
+                <field name="client_name" string="Client"/>
+                <field name="supplier_name" string="Fournisseur"/>
+                <field name="source_model" string="Type"/>
+                <filter string="Export" name="export" domain="[('source_model', '=', 'kadouane.kadouane')]"/>
+                <filter string="Import" name="import" domain="[('source_model', '=', 'kadouane.dmdimport')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_ar_checklist_export_dossier_list" model="ir.ui.view">
+        <field name="name">ar.checklist.export.dossier.list</field>
+        <field name="model">kadouane.kadouane</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="referenceID" string="N° dossier"/>
+                <field name="client_id" string="Client"/>
+                <field name="state" string="État"/>
+                <field name="stateShip" string="Statut expédition"/>
+                <field name="create_date" string="Date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ar_checklist_export_dossier_search" model="ir.ui.view">
+        <field name="name">ar.checklist.export.dossier.search</field>
+        <field name="model">kadouane.kadouane</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="referenceID" string="N° dossier"/>
+                <field name="client_id" string="Client"/>
+                <field name="state" string="État"/>
+                <field name="stateShip" string="Statut expédition"/>
+                <filter string="Attente Facturation" name="state_facturation" domain="[('state', '=', 'facturation')]"/>
+            </search>
+        </field>
+    </record>
+
     <record id="view_ar_checklist_list" model="ir.ui.view">
         <field name="name">ar.checklist.list</field>
         <field name="model">ar.checklist</field>
@@ -198,7 +256,7 @@
                                 <field name="exp_manuf_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'exp_manuf'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="dossier_id" string="N° dossier" domain="[]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="dossier_id" string="N° dossier" domain="[]" context="{'ar_checklist_reference_display': True, 'tree_view_ref': 'ar_checklist.view_ar_checklist_export_dossier_list', 'search_view_ref': 'ar_checklist.view_ar_checklist_export_dossier_search'}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -212,7 +270,7 @@
                                 <field name="exp_trad_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'exp_trad'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="dossier_id" string="N° dossier" domain="[]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="dossier_id" string="N° dossier" domain="[]" context="{'ar_checklist_reference_display': True, 'tree_view_ref': 'ar_checklist.view_ar_checklist_export_dossier_list', 'search_view_ref': 'ar_checklist.view_ar_checklist_export_dossier_search'}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -232,9 +290,7 @@
                                 <field name="att_exp_manuf_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'att_exp_manuf'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="dossier_date_from" column_invisible="1"/>
-                                        <field name="dossier_date_to" column_invisible="1"/>
-                                        <field name="dossier_id" string="N° dossier" domain="[('create_date', '&gt;=', dossier_date_from), ('create_date', '&lt;', dossier_date_to)]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="dossier_id" string="N° dossier" domain="[]" context="{'ar_checklist_reference_display': True, 'tree_view_ref': 'ar_checklist.view_ar_checklist_export_dossier_list', 'search_view_ref': 'ar_checklist.view_ar_checklist_export_dossier_search'}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -249,9 +305,7 @@
                                 <field name="att_exp_trad_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'att_exp_trad'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="dossier_date_from" column_invisible="1"/>
-                                        <field name="dossier_date_to" column_invisible="1"/>
-                                        <field name="dossier_id" string="N° dossier" domain="[('create_date', '&gt;=', dossier_date_from), ('create_date', '&lt;', dossier_date_to)]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="dossier_id" string="N° dossier" domain="[]" context="{'ar_checklist_reference_display': True, 'tree_view_ref': 'ar_checklist.view_ar_checklist_export_dossier_list', 'search_view_ref': 'ar_checklist.view_ar_checklist_export_dossier_search'}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>
@@ -281,7 +335,7 @@
                                 <field name="dechargement_line_ids" nolabel="1" readonly="not active or workflow_state != 'signature_1'" context="{'default_section': 'dechargement'}">
                                     <list editable="bottom">
                                         <field name="section" column_invisible="1"/>
-                                        <field name="dossier_id" string="N° dossier" domain="[]" context="{'ar_checklist_reference_display': True}" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="dechargement_dossier_id" string="N° dossier" context="{'tree_view_ref': 'ar_checklist.view_ar_checklist_kadouane_dossier_list', 'search_view_ref': 'ar_checklist.view_ar_checklist_kadouane_dossier_search'}" options="{'no_create': True, 'no_create_edit': True}"/>
                                         <field name="quantity" string="Nb palettes"/>
                                     </list>
                                 </field>

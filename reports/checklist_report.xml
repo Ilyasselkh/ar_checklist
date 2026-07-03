@@ -410,7 +410,7 @@
                                             <thead><tr><th>N° dossier</th><th class="ar_chk_num">Nb palettes</th></tr></thead>
                                             <tbody>
                                                 <tr t-foreach="o.dechargement_line_ids" t-as="line">
-                                                    <td><span t-esc="line.dossier_id.referenceID or ''"/></td>
+                                                    <td><span t-esc="line.dechargement_dossier_id.referenceID or line.dossier_id.referenceID or ''"/></td>
                                                     <td class="ar_chk_num"><span t-field="line.quantity"/></td>
                                                 </tr>
                                             </tbody>

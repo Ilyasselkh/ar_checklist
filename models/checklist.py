@@ -540,6 +540,10 @@ class ArChecklistLine(models.Model):
         string="N° dossier",
         context={"ar_checklist_reference_display": True},
     )
+    dechargement_dossier_id = fields.Many2one(
+        "ar.checklist.kadouane.dossier",
+        string="N° dossier",
+    )
     reference = fields.Char(string="Référence")
     of = fields.Char(string="OF")
     quantity = fields.Float(string="Nb de palettes")

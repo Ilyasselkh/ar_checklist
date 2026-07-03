@@ -10,5 +10,6 @@ access_ar_checklist_equipment_param,ar.checklist.equipment param,model_ar_checkl
 access_ar_checklist_zone_read,ar.checklist.zone read,model_ar_checklist_zone,base.group_user,1,0,0,0
 access_ar_checklist_zone_param,ar.checklist.zone param,model_ar_checklist_zone,ar_checklist.group_ar_checklist_param,1,1,1,1
 access_ar_checklist_kadouane_dossier_read,kadouane.kadouane dossier read,kadouane.model_kadouane_kadouane,base.group_user,1,0,0,0
+access_ar_checklist_kadouane_all_dossier_read,ar.checklist.kadouane.dossier read,model_ar_checklist_kadouane_dossier,base.group_user,1,0,0,0
 access_ar_checklist_disagreement_wizard,ar.checklist.disagreement.wizard,model_ar_checklist_disagreement_wizard,base.group_user,1,1,1,1
 access_ar_checklist_supervisor_decision_wizard,ar.checklist.supervisor.decision.wizard,model_ar_checklist_supervisor_decision_wizard,base.group_user,1,1,1,1
