@@ -544,6 +544,7 @@ class ArChecklistLine(models.Model):
         "ar.checklist.kadouane.dossier",
         string="N° dossier",
     )
+    client_name = fields.Char(string="Client", compute="_compute_client_name")
     reference = fields.Char(string="Référence")
     of = fields.Char(string="OF")
     quantity = fields.Float(string="Nb de palettes")
@@ -557,6 +558,12 @@ class ArChecklistLine(models.Model):
         for line in self:
             line.dossier_date_from = date_from
             line.dossier_date_to = date_to
+
+    @api.depends("dossier_id.client_id.name", "dechargement_dossier_id.partner_name")
+    def _compute_client_name(self):
+        for line in self:
+            line.client_name = line.dossier_id.client_id.name or line.dechargement_dossier_id.partner_name or ""
+
     def _check_signature_editable(self):
         if any(line.checklist_id.workflow_state in ("signature_2", "superviseur") for line in self):
             raise ValidationError(_("Cette check-list est en validation. Elle n'est plus modifiable."))
