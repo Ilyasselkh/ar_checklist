@@ -259,6 +259,7 @@
                                             <tr><td class="ar_chk_label">Opérateur Polyvalant suivant</td><td><span t-field="o.next_chef_id"/></td></tr>
                                             <tr t-if="o.supervisor_id"><td class="ar_chk_label">Superviseur</td><td><span t-field="o.supervisor_id"/></td></tr>
                                             <tr><td class="ar_chk_label">Absence</td><td><span t-field="o.nb_absents"/></td></tr>
+                                            <tr><td class="ar_chk_label">Disponibilité</td><td><span t-field="o.availability_display"/></td></tr>
                                         </table>
                                     </div>
                                 </td>
@@ -266,11 +267,12 @@
                                     <div class="ar_chk_box">
                                         <h3>Opérateurs affectés</h3>
                                         <table class="ar_chk_table">
-                                            <thead><tr><th>Opérateur</th><th>Présence</th></tr></thead>
+                                            <thead><tr><th>Opérateur</th><th>Présence</th><th>Disponibilité</th></tr></thead>
                                             <tbody>
                                                 <tr t-foreach="o.operator_presence_ids" t-as="op">
                                                     <td><span t-field="op.operator_name"/></td>
                                                     <td><span t-if="op.present">Présent</span><span t-else="">Absent</span></td>
+                                                    <td><span t-if="op.available">Disponible</span><span t-else="">Indisponible</span></td>
                                                 </tr>
                                             </tbody>
                                         </table>

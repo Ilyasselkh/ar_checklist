@@ -82,6 +82,7 @@ class ArChecklist(models.Model):
         default=lambda self: self._default_zone_line_commands(),
     )
     nb_absents = fields.Integer(string="Nombre d'absence", compute="_compute_nb_absents", store=True)
+    availability_display = fields.Char(string="Disponibilité", compute="_compute_availability_display")
 
     prep_manuf_line_ids = fields.One2many(
         "ar.checklist.line",
@@ -237,6 +238,40 @@ class ArChecklist(models.Model):
         for rec in self:
             rec.nb_absents = len(rec.operator_presence_ids.filtered(lambda line: not line.present))
 
+    @api.depends("chef_id", "operator_presence_ids", "operator_presence_ids.available")
+    def _compute_availability_display(self):
+        for rec in self:
+            available_count = len(rec.operator_presence_ids.filtered(lambda line: line.available))
+            if rec.chef_id and not rec._has_chef_in_operator_lines():
+                available_count += 1
+            rec.availability_display = f"{available_count}/{rec._get_theoretical_operator_count()}"
+
+    def _has_chef_in_operator_lines(self):
+        self.ensure_one()
+        if not self.chef_id:
+            return False
+        chef_employee = self._employee_for_chef_user(self.chef_id)
+        return any(
+            (chef_employee and line.employee_id == chef_employee) or line.operator_id == self.chef_id
+            for line in self.operator_presence_ids
+        )
+
+    def _get_theoretical_operator_count(self):
+        self.ensure_one()
+        chef_employee = self._employee_for_chef_user(self.chef_id)
+        if not chef_employee:
+            return 0
+        employee_model = self.env["hr.employee"].sudo()
+        if "team_leader_id" not in employee_model._fields:
+            return len(self.operator_presence_ids)
+        try:
+            return employee_model.search_count([
+                ("team_leader_id", "=", chef_employee.id),
+                ("active", "=", True),
+            ]) + (0 if self._has_chef_in_operator_lines() else 1)
+        except ValueError:
+            return len(self.operator_presence_ids) + (0 if self._has_chef_in_operator_lines() else 1)
+
     @api.depends(
         "prep_manuf_line_ids.quantity",
         "prep_trad_line_ids.quantity",
@@ -333,6 +368,7 @@ class ArChecklist(models.Model):
                 "operator_id": operator.user_id.id or False,
                 "operator_name": operator.name,
                 "present": True,
+                "available": True,
             })
             for operator in operators
         ]
@@ -727,6 +763,15 @@ class ArChecklistOperatorLine(models.Model):
     operator_id = fields.Many2one("res.users", string="Utilisateur opérateur")
     operator_name = fields.Char(string="Opérateur", compute="_compute_operator_name", store=True, readonly=False)
     present = fields.Boolean(string="Présence", default=True)
+    available = fields.Boolean(string="Disponibilité", default=True)
+
+    def init(self):
+        self.env.cr.execute("""
+            UPDATE ar_checklist_operator_line
+               SET available = TRUE
+             WHERE available IS NULL
+        """)
+
     def _check_signature_editable(self):
         if any(line.checklist_id.workflow_state in ("signature_2", "superviseur") for line in self):
             raise ValidationError(_("Cette check-list est en validation. Elle n'est plus modifiable."))
