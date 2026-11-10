@@ -238,7 +238,13 @@ class ArChecklist(models.Model):
         for rec in self:
             rec.nb_absents = len(rec.operator_presence_ids.filtered(lambda line: not line.present))
 
-    @api.depends("chef_id", "operator_presence_ids", "operator_presence_ids.available")
+    @api.depends(
+        "chef_id",
+        "operator_presence_ids",
+        "operator_presence_ids.available",
+        "operator_presence_ids.employee_id",
+        "operator_presence_ids.operator_id",
+    )
     def _compute_availability_display(self):
         for rec in self:
             available_count = len(rec.operator_presence_ids.filtered(lambda line: line.available))
@@ -258,19 +264,10 @@ class ArChecklist(models.Model):
 
     def _get_theoretical_operator_count(self):
         self.ensure_one()
-        chef_employee = self._employee_for_chef_user(self.chef_id)
-        if not chef_employee:
-            return 0
-        employee_model = self.env["hr.employee"].sudo()
-        if "team_leader_id" not in employee_model._fields:
-            return len(self.operator_presence_ids)
-        try:
-            return employee_model.search_count([
-                ("team_leader_id", "=", chef_employee.id),
-                ("active", "=", True),
-            ]) + (0 if self._has_chef_in_operator_lines() else 1)
-        except ValueError:
-            return len(self.operator_presence_ids) + (0 if self._has_chef_in_operator_lines() else 1)
+        total = len(self.operator_presence_ids)
+        if self.chef_id and not self._has_chef_in_operator_lines():
+            total += 1
+        return total
 
     @api.depends(
         "prep_manuf_line_ids.quantity",

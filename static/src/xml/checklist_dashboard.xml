@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ar_checklist.Dashboard">
+        <div class="o_ar_dashboard h-100 overflow-auto p-4">
+            <h1>Tableau de bord des checklists</h1>
+            <p class="text-muted">Checklists archivées, hors refus superviseur. Effectifs cumulés par checklist ; les personnes peuvent être comptées sur plusieurs relevés.</p>
+            <div class="d-flex flex-wrap align-items-end gap-3 mb-4">
+                <label>Du<input type="date" class="form-control" t-model="state.from"/></label>
+                <label>Au<input type="date" class="form-control" t-model="state.to"/></label>
+                <label>Shift<select class="form-select" t-model="state.shift"><option value="">Toutes les équipes</option><option value="shift_1">Equipe 1 (B)</option><option value="shift_2">Equipe 2 (C)</option><option value="shift_3">Equipe 3 (A)</option></select></label>
+                <label>Opérateur polyvalent<select class="form-select" t-model="state.chef"><option value="">Tous</option><t t-if="state.data"><option t-foreach="state.data.chefs" t-as="chef" t-key="chef.id" t-att-value="chef.id"><t t-esc="chef.name"/></option></t></select></label>
+                <button class="btn btn-primary" t-on-click="load" t-att-disabled="state.loading">Appliquer</button>
+            </div>
+            <t t-if="state.data">
+                <div t-if="!state.data.count" class="alert alert-info">Aucune checklist ne correspond aux filtres.</div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3"><div class="card p-3"><span>Checklists</span><strong class="fs-2" t-esc="state.data.count"/><button class="btn btn-link text-start p-0" t-on-click="() => this.openChecklists()">Voir le détail</button></div></div>
+                    <div class="col-md-3"><div class="card p-3"><span>Disponibilité pondérée</span><strong class="fs-2" t-esc="rate(state.data.rate)"/><small><t t-esc="state.data.available"/> / <t t-esc="state.data.total"/> effectifs comptabilisés</small></div></div>
+                    <div class="col-md-3"><div class="card p-3"><span>Absences cumulées</span><strong class="fs-2" t-esc="state.data.absent"/><small>Selon la case Présence</small></div></div>
+                    <div class="col-md-3"><div class="card p-3"><span>Indisponibilités cumulées</span><strong class="fs-2" t-esc="state.data.total - state.data.available"/><small>Selon la case Disponibilité</small></div></div>
+                </div>
+                <h2>Effectifs par shift</h2>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4" t-foreach="state.data.shifts" t-as="row" t-key="row.key">
+                        <div class="card p-3 h-100">
+                            <button class="btn btn-link text-start p-0 mb-2" t-on-click="() => this.openChecklists(row.key)"><t t-esc="row.label"/> · <t t-esc="row.count"/> checklists</button>
+                            <div>Disponibilité : <strong t-esc="rate(row.rate)"/></div>
+                            <div class="progress my-2" role="img" t-att-aria-label="'Disponibilité : ' + rate(row.rate)"><div class="progress-bar bg-success" t-att-style="'width: ' + (row.rate || 0) + '%'"/></div>
+                            <small><t t-esc="row.available"/> disponibles / <t t-esc="row.total"/> ; <t t-esc="row.unavailable"/> indisponibles</small>
+                            <div class="mt-2">Absences : <strong t-esc="row.absent"/></div>
+                            <div class="progress my-2" role="img" t-att-aria-label="'Absences : ' + row.absent"><div class="progress-bar bg-warning" t-att-style="bar(row.absent, 'absent')"/></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-outline-primary mb-4" t-on-click="() => this.openAnalysis('staff')">Graphiques et tableau croisé des effectifs</button>
+                <h2>Activité — palettes</h2>
+                <p class="text-muted">Somme des quantités déclarées dans les checklists sélectionnées.</p>
+                <div class="row g-3 mb-3"><div class="col-md-4 col-xl-2" t-foreach="flowLabels" t-as="flow" t-key="flow[0]"><div class="card p-3 h-100"><span t-esc="flow[1]"/><strong class="fs-3" t-esc="number(state.data.flows[flow[0]])"/></div></div></div>
+                <div class="table-responsive mb-3"><table class="table table-striped"><thead><tr><th>Shift</th><th t-foreach="flowLabels" t-as="flow" t-key="flow[0]" t-esc="flow[1]"/></tr></thead><tbody><tr t-foreach="state.data.shifts" t-as="row" t-key="row.key"><td t-esc="row.label"/><td t-foreach="flowLabels" t-as="flow" t-key="flow[0]" t-esc="number(row.flows[flow[0]])"/></tr></tbody></table></div>
+                <button class="btn btn-outline-primary mb-4" t-on-click="() => this.openAnalysis('activity')">Graphiques et tableau croisé de l’activité</button>
+                <h2>Attente d’expédition — derniers relevés</h2>
+                <p class="text-muted">Dernière checklist de chaque shift dans la période et les filtres sélectionnés. Ces stocks ne sont pas additionnés dans le temps.</p>
+                <table class="table table-striped mb-4"><thead><tr><th>Shift</th><th>Dernier relevé</th><th>Date</th><th>Manufacturing (palettes)</th><th>Trading (palettes)</th></tr></thead><tbody><tr t-foreach="state.data.shifts" t-as="row" t-key="row.key"><td t-esc="row.label"/><td><button t-if="row.latest_id" class="btn btn-link p-0" t-on-click="() => this.openLatest(row.latest_id)" t-esc="row.latest_name"/><span t-else="">Aucun relevé</span></td><td t-esc="row.latest_date"/><td t-esc="row.latest_id ? number(row.waiting_manuf) : '—'"/><td t-esc="row.latest_id ? number(row.waiting_trad) : '—'"/></tr></tbody></table>
+                <h2>Prolongement — Carton/Qte</h2>
+                <p>Total : <strong t-esc="number(state.data.flows.total_prolongement)"/></p>
+                <button class="btn btn-outline-primary" t-on-click="() => this.openAnalysis('prolongement')">Analyser le prolongement</button>
+            </t>
+        </div>
+    </t>
+</templates>

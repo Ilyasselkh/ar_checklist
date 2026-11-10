@@ -26,11 +26,15 @@ et opérateurs affectés depuis le module RH.
         "views/equipment_views.xml",
         "views/zone_views.xml",
         "views/documentation_views.xml",
+        "views/checklist_analysis_views.xml",
         "views/menus.xml",
     ],
     "assets": {
         "web.assets_backend": [
             "ar_checklist/static/src/js/equipment_cards_field.js",
+            "ar_checklist/static/src/js/checklist_export.js",
+            "ar_checklist/static/src/js/checklist_dashboard.js",
+            "ar_checklist/static/src/xml/checklist_dashboard.xml",
             "ar_checklist/static/src/xml/equipment_cards_field.xml",
             "ar_checklist/static/src/scss/ar_checklist.scss",
         ],

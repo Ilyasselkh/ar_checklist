@@ -24,6 +24,17 @@
               action="action_ar_checklist_documentation"
               sequence="30"/>
 
+    <menuitem id="menu_ar_checklist_analysis" name="Analyse"
+              parent="menu_ar_checklist_root" sequence="25"/>
+    <menuitem id="menu_ar_checklist_dashboard" name="Tableau de bord"
+              parent="menu_ar_checklist_analysis" action="action_checklist_dashboard" sequence="10"/>
+    <menuitem id="menu_ar_checklist_analysis_staff" name="Effectifs par shift"
+              parent="menu_ar_checklist_analysis" action="action_analysis_staff" sequence="20"/>
+    <menuitem id="menu_ar_checklist_analysis_activity" name="Activité (palettes)"
+              parent="menu_ar_checklist_analysis" action="action_analysis_activity" sequence="30"/>
+    <menuitem id="menu_ar_checklist_analysis_prolongement" name="Prolongement (Carton/Qte)"
+              parent="menu_ar_checklist_analysis" action="action_analysis_prolongement" sequence="40"/>
+
     <menuitem id="menu_ar_checklist_parametrage"
               name="Paramétrage"
               parent="menu_ar_checklist_root"

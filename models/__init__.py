@@ -1,4 +1,5 @@
 from . import checklist
+from . import checklist_analysis
 from . import documentation
 from . import equipment
 from . import hr_employee
